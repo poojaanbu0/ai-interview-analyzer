@@ -22,9 +22,12 @@ st.title("AI Interview Analyzer")
 
 interview, metrics = st.columns([2, 1])
 
+question = "Tell me about yourself."
 # -------------------------
 # LEFT SIDE - INTERVIEW
 # -------------------------
+
+
 
 with interview:
 
@@ -59,7 +62,7 @@ with interview:
             files={
                 "audio": (
                     "recording.wav",
-                    audio_value.getvalue(),
+                    audio.getvalue(),
                     "audio/wav"
                 )
             }
