@@ -14,6 +14,9 @@ if "filler_words" not in st.session_state:
 
 if "transcript" not in st.session_state:
     st.session_state["transcript"] = ""
+
+if "answer_analysis" not in st.session_state:
+    st.session_state["answer_analysis"] = None
     
 st.title("AI Interview Analyzer")
 
@@ -28,7 +31,7 @@ with interview:
     st.subheader("Interview")
 
     with st.chat_message("assistant"):
-        st.write("Tell me about yourself.")
+        st.write(question)
 
     audio = st.audio_input(
         "Record candidate response"
@@ -47,9 +50,20 @@ with interview:
 
         try:
             response = requests.post(
-                "http://127.0.0.1:8000/interview/audio",
-                files=files
-            )
+            "http://127.0.0.1:8000/interview/audio",
+
+            data={
+                "question": question
+            },
+
+            files={
+                "audio": (
+                    "recording.wav",
+                    audio_value.getvalue(),
+                    "audio/wav"
+                )
+            }
+        )
 
             if response.status_code == 200:
 
@@ -58,11 +72,18 @@ with interview:
                 st.session_state["transcript"] = data["transcript"]
                 st.session_state["speech_rate"] = data["speech_rate"]
                 st.session_state["filler_words"] = data["filler_words"]
+                st.session_state["audio_features"] = data["audio_features"]
+
+                st.session_state["answer_analysis"] = data["answer_analysis"]
 
                 st.success("Audio analyzed successfully")
 
                 with st.chat_message("user"):
                     st.write(data["transcript"])
+
+                    # Temporary debugging display
+                st.write("Extracted Audio Features")
+                st.json(data["audio_features"])
 
             else:
                 st.error(
@@ -98,3 +119,4 @@ with metrics:
         "Filler Words",
         filler_words
     )
+
