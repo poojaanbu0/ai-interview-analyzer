@@ -4,9 +4,10 @@ import tempfile
 import os
 
 
-def extract_audio_features(audio_bytes: bytes):
+def extract_audio_features(
+    audio_bytes: bytes
+):
 
-    # Save Streamlit audio temporarily
     with tempfile.NamedTemporaryFile(
         delete=False,
         suffix=".wav"
@@ -16,15 +17,11 @@ def extract_audio_features(audio_bytes: bytes):
         temp_path = temp_file.name
 
     try:
-        # Load audio
+
         y, sr = librosa.load(
             temp_path,
             sr=None
         )
-
-        # -------------------------
-        # 1. MFCC
-        # -------------------------
 
         mfcc = librosa.feature.mfcc(
             y=y,
@@ -32,44 +29,27 @@ def extract_audio_features(audio_bytes: bytes):
             n_mfcc=13
         )
 
-        # Convert each MFCC into one mean value
         mfcc_mean = np.mean(
             mfcc,
             axis=1
         )
 
-        # -------------------------
-        # 2. RMS ENERGY
-        # -------------------------
-
         rms = librosa.feature.rms(y=y)
-
         rms_mean = np.mean(rms)
 
-        # -------------------------
-        # 3. ZERO CROSSING RATE
-        # -------------------------
-
         zcr = librosa.feature.zero_crossing_rate(y)
-
         zcr_mean = np.mean(zcr)
 
-        # -------------------------
-        # 4. SPECTRAL CENTROID
-        # -------------------------
-
-        spectral_centroid = librosa.feature.spectral_centroid(
-            y=y,
-            sr=sr
+        spectral_centroid = (
+            librosa.feature.spectral_centroid(
+                y=y,
+                sr=sr
+            )
         )
 
         spectral_centroid_mean = np.mean(
             spectral_centroid
         )
-
-        # -------------------------
-        # 5. PITCH
-        # -------------------------
 
         f0 = librosa.yin(
             y,

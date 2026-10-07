@@ -83,6 +83,7 @@
 from fastapi import APIRouter, UploadFile, File, Form
 import asyncio
 import time
+from pathlib import Path
 
 from backend.services.transcription import transcribe_audio
 from backend.services.audio_features import extract_audio_features
@@ -97,8 +98,6 @@ router = APIRouter(
     tags=["Interview"]
 )
 
-
-
 @router.post("/audio")
 async def receive_audio(
     question: str = Form(...),
@@ -108,6 +107,11 @@ async def receive_audio(
 
     # Read uploaded audio
     audio_bytes = await audio.read()
+
+    # audio_extension = Path(audio.filename).suffix
+
+    # if not audio_extension:
+    #     audio_extension = ".wav"
 
 
     # -----------------------------------
@@ -119,13 +123,13 @@ async def receive_audio(
     transcription_result, audio_features = await asyncio.gather(
 
         asyncio.to_thread(
-            transcribe_audio,
-            audio_bytes
+        transcribe_audio,
+        audio_bytes
         ),
 
         asyncio.to_thread(
-            extract_audio_features,
-            audio_bytes
+        extract_audio_features,
+        audio_bytes
         )
     )
 

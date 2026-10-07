@@ -17,8 +17,9 @@ model = WhisperModel(
 )
 
 
-def transcribe_audio(audio_bytes: bytes):
-
+def transcribe_audio(
+    audio_bytes: bytes
+):
     with tempfile.NamedTemporaryFile(
         delete=False,
         suffix=".wav"
@@ -28,7 +29,6 @@ def transcribe_audio(audio_bytes: bytes):
         temp_path = temp_file.name
 
     try:
-
         segments, info = model.transcribe(
             temp_path,
             beam_size=5
@@ -42,4 +42,4 @@ def transcribe_audio(audio_bytes: bytes):
         return transcript, info.duration
 
     finally:
-        os.remove(temp_path)
+        os.remove(temp_path)  
