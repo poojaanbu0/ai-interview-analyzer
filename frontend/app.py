@@ -2,154 +2,327 @@ import streamlit as st
 import requests
 
 
+# ============================================================
+# PAGE CONFIG
+# ============================================================
+
 st.set_page_config(
     page_title="AI Interview Analyzer",
     layout="wide"
 )
 
+st.title("AI Interview Analyzer")
 
-# -------------------------
+
+# ============================================================
+# SETTINGS
+# ============================================================
+
+MAX_QUESTIONS = 5
+
+
+# ============================================================
 # SESSION STATE
-# -------------------------
+# ============================================================
 
+# Current interview question
+if "current_question" not in st.session_state:
+    st.session_state["current_question"] = "Tell me about yourself."
+
+
+# Complete interview history
+if "interview_history" not in st.session_state:
+    st.session_state["interview_history"] = []
+
+
+# Latest speech rate
 if "speech_rate" not in st.session_state:
     st.session_state["speech_rate"] = "--"
 
+
+# Latest filler-word count
 if "filler_words" not in st.session_state:
     st.session_state["filler_words"] = "--"
 
+
+# Latest transcript
 if "transcript" not in st.session_state:
     st.session_state["transcript"] = ""
 
+
+# Latest Librosa features
 if "audio_features" not in st.session_state:
     st.session_state["audio_features"] = None
 
+
+# Latest Nemotron analysis
 if "answer_analysis" not in st.session_state:
     st.session_state["answer_analysis"] = None
 
 
-# -------------------------
-# PAGE
-# -------------------------
+# Interview completion state
+if "interview_complete" not in st.session_state:
+    st.session_state["interview_complete"] = False
 
-st.title("AI Interview Analyzer")
+
+# ============================================================
+# PAGE LAYOUT
+# ============================================================
 
 interview, metrics = st.columns([2, 1])
 
 
-# Current interview question
-question = "Tell me about yourself."
-
-
-# -------------------------
+# ============================================================
 # LEFT SIDE - INTERVIEW
-# -------------------------
+# ============================================================
 
 with interview:
 
     st.subheader("Interview")
 
-    with st.chat_message("assistant"):
-        st.write(question)
 
-    audio = st.audio_input(
-        "Record candidate response"
-    )
+    # --------------------------------------------------------
+    # DISPLAY PREVIOUS CONVERSATION
+    # --------------------------------------------------------
 
+    for round_data in st.session_state["interview_history"]:
 
-    # Send recorded audio to FastAPI
-    if audio is not None:
-
-        files = {
-            "audio": (
-                audio.name,
-                audio.getvalue(),
-                audio.type
+        with st.chat_message("assistant"):
+            st.write(
+                round_data["question"]
             )
-        }
 
-        try:
-
-            response = requests.post(
-                "http://127.0.0.1:8000/interview/audio",
-
-                data={
-                    "question": question
-                },
-
-                files=files
+        with st.chat_message("user"):
+            st.write(
+                round_data["transcript"]
             )
 
 
-            if response.status_code == 200:
+    # --------------------------------------------------------
+    # ACTIVE INTERVIEW
+    # --------------------------------------------------------
 
-                data = response.json()
+    if not st.session_state["interview_complete"]:
 
-                st.session_state["transcript"] = (
-                    data["transcript"]
+        question = st.session_state["current_question"]
+
+
+        # Display current question
+        with st.chat_message("assistant"):
+            st.write(question)
+
+
+        # Show question number
+        current_number = (
+            len(st.session_state["interview_history"]) + 1
+        )
+
+        st.caption(
+            f"Question {current_number} of {MAX_QUESTIONS}"
+        )
+
+
+        # Candidate records answer
+        audio = st.audio_input(
+            "Record candidate response",
+            key=f"audio_{current_number}"
+        )
+
+
+        # ----------------------------------------------------
+        # SEND AUDIO TO FASTAPI
+        # ----------------------------------------------------
+
+        if audio is not None:
+
+            files = {
+                "audio": (
+                    audio.name,
+                    audio.getvalue(),
+                    audio.type
                 )
-
-                st.session_state["speech_rate"] = (
-                    data["speech_rate"]
-                )
-
-                st.session_state["filler_words"] = (
-                    data["filler_words"]
-                )
-
-                st.session_state["audio_features"] = (
-                    data["audio_features"]
-                )
-
-                st.session_state["answer_analysis"] = (
-                    data["answer_analysis"]
-                )
-
-                st.success(
-                    "Audio analyzed successfully"
-                )
+            }
 
 
-                # Candidate transcript
-                with st.chat_message("user"):
-                    st.write(
-                        data["transcript"]
+            try:
+
+                with st.spinner(
+                    "Analyzing candidate response..."
+                ):
+
+                    response = requests.post(
+                        "http://127.0.0.1:8000/interview/audio",
+
+                        data={
+                            "question": question
+                        },
+
+                        files=files,
+
+                        timeout=120
                     )
 
 
-                # Temporary debugging
-                st.write(
-                    "Extracted Audio Features"
-                )
+                # ------------------------------------------------
+                # SUCCESSFUL BACKEND RESPONSE
+                # ------------------------------------------------
 
-                st.json(
-                    data["audio_features"]
-                )
+                if response.status_code == 200:
+
+                    data = response.json()
 
 
-            else:
+                    # Store latest result
+                    st.session_state["transcript"] = (
+                        data["transcript"]
+                    )
+
+                    st.session_state["speech_rate"] = (
+                        data["speech_rate"]
+                    )
+
+                    st.session_state["filler_words"] = (
+                        data["filler_words"]
+                    )
+
+                    st.session_state["audio_features"] = (
+                        data["audio_features"]
+                    )
+
+                    st.session_state["answer_analysis"] = (
+                        data["answer_analysis"]
+                    )
+
+
+                    # --------------------------------------------
+                    # SAVE COMPLETED INTERVIEW ROUND
+                    # --------------------------------------------
+
+                    interview_round = {
+
+                        "question":
+                            question,
+
+                        "transcript":
+                            data["transcript"],
+
+                        "speech_rate":
+                            data["speech_rate"],
+
+                        "filler_words":
+                            data["filler_words"],
+
+                        "answer_analysis":
+                            data["answer_analysis"]
+                    }
+
+
+                    st.session_state[
+                        "interview_history"
+                    ].append(
+                        interview_round
+                    )
+
+
+                    # --------------------------------------------
+                    # DECIDE WHETHER INTERVIEW CONTINUES
+                    # --------------------------------------------
+
+                    if (
+                        len(
+                            st.session_state[
+                                "interview_history"
+                            ]
+                        )
+                        < MAX_QUESTIONS
+                    ):
+
+                        # Nemotron follow-up becomes next question
+                        st.session_state[
+                            "current_question"
+                        ] = (
+                            data[
+                                "answer_analysis"
+                            ][
+                                "follow_up_question"
+                            ]
+                        )
+
+                    else:
+
+                        st.session_state[
+                            "interview_complete"
+                        ] = True
+
+
+                    # Reload Streamlit with next question
+                    st.rerun()
+
+
+                # ------------------------------------------------
+                # BACKEND ERROR
+                # ------------------------------------------------
+
+                else:
+
+                    st.error(
+                        f"Backend error: "
+                        f"{response.status_code}"
+                    )
+
+                    st.write(
+                        response.text
+                    )
+
+
+            # ----------------------------------------------------
+            # CONNECTION ERROR
+            # ----------------------------------------------------
+
+            except requests.exceptions.ConnectionError:
 
                 st.error(
-                    f"Backend error:  {response.status_code}"
+                    "Could not connect to FastAPI backend."
                 )
 
-                st.write(response.text)
+
+            except requests.exceptions.Timeout:
+
+                st.error(
+                    "The analysis took too long. "
+                    "Please try again."
+                )
 
 
-        except requests.exceptions.ConnectionError:
+    # ========================================================
+    # INTERVIEW COMPLETE
+    # ========================================================
 
-            st.error(
-                "Could not connect to FastAPI backend."
-            )
+    else:
+
+        st.success(
+            "Interview completed."
+        )
+
+        st.write(
+            f"You answered "
+            f"{len(st.session_state['interview_history'])} "
+            f"questions."
+        )
 
 
-# -------------------------
+# ============================================================
 # RIGHT SIDE - HR METRICS
-# -------------------------
+# ============================================================
 
 with metrics:
 
     st.subheader("Live Analysis")
+
+
+    # --------------------------------------------------------
+    # SPEECH METRICS
+    # --------------------------------------------------------
 
     speech_rate = (
         st.session_state["speech_rate"]
@@ -181,50 +354,77 @@ with metrics:
     )
 
 
-    # -------------------------
-    # NEMOTRON ANALYSIS
-    # -------------------------
+    # --------------------------------------------------------
+    # ANSWER ANALYSIS
+    # --------------------------------------------------------
 
     analysis = (
         st.session_state["answer_analysis"]
     )
 
+
     if analysis is not None:
 
         st.divider()
 
-        st.subheader("Answer Analysis")
+        st.subheader(
+            "Latest Answer Analysis"
+        )
 
-        st.write("**Relevance**")
+
+        st.write(
+            "**Relevance**"
+        )
+
         st.write(
             analysis["relevance"]
         )
 
-        st.write("**Clarity**")
+
+        st.write(
+            "**Clarity**"
+        )
+
         st.write(
             analysis["clarity"]
         )
 
-        st.write("**Key Strengths**")
+
+        st.write(
+            "**Key Strengths**"
+        )
 
         for strength in analysis["key_strengths"]:
+
             st.write(
                 f"• {strength}"
             )
 
-        st.write("**Weak Points**")
+
+        st.write(
+            "**Weak Points**"
+        )
 
         for weakness in analysis["weak_points"]:
+
             st.write(
                 f"• {weakness}"
             )
 
-        st.write("**Follow-up Question**")
+
+        st.write(
+            "**Follow-up Question**"
+        )
+
         st.write(
             analysis["follow_up_question"]
         )
 
-        st.write("**Overall Assessment**")
+
+        st.write(
+            "**Overall Assessment**"
+        )
+
         st.write(
             analysis["overall_assessment"]
         )
