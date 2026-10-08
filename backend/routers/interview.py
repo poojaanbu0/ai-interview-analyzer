@@ -92,11 +92,26 @@ from backend.services.fluency import (
     count_filler_words
 )
 from backend.services.interview_analyzer import analyze_interview
+from backend.services.interview_summary import (
+    generate_interview_summary
+)
+from pydantic import BaseModel
 
 router = APIRouter(
     prefix="/interview",
     tags=["Interview"]
 )
+
+class InterviewRound(BaseModel):
+    question: str
+    transcript: str
+    speech_rate: float
+    filler_words: int
+    answer_analysis: dict
+
+
+class InterviewSummaryRequest(BaseModel):
+    interview_history: list[InterviewRound]
 
 @router.post("/audio")
 async def receive_audio(
@@ -210,4 +225,26 @@ async def receive_audio(
         "audio_features": audio_features,
 
         "answer_analysis": answer_analysis.model_dump()
+    }
+
+@router.post("/summary")
+async def create_interview_summary(
+    request: InterviewSummaryRequest
+):
+
+    history = [
+        round_data.model_dump()
+        for round_data in request.interview_history
+    ]
+
+
+    summary = await asyncio.to_thread(
+        generate_interview_summary,
+        history
+    )
+
+
+    return {
+        "interview_summary":
+            summary.model_dump()
     }

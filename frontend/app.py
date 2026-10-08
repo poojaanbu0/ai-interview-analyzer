@@ -64,6 +64,9 @@ if "answer_analysis" not in st.session_state:
 if "interview_complete" not in st.session_state:
     st.session_state["interview_complete"] = False
 
+if "final_summary" not in st.session_state:
+    st.session_state["final_summary"] = None
+
 
 # ============================================================
 # PAGE LAYOUT
@@ -228,32 +231,47 @@ with interview:
                     # DECIDE WHETHER INTERVIEW CONTINUES
                     # --------------------------------------------
 
-                    if (
-                        len(
-                            st.session_state[
-                                "interview_history"
-                            ]
-                        )
-                        < MAX_QUESTIONS
-                    ):
+                    if len(st.session_state["interview_history"]) < MAX_QUESTIONS:
 
-                        # Nemotron follow-up becomes next question
-                        st.session_state[
-                            "current_question"
-                        ] = (
-                            data[
-                                "answer_analysis"
-                            ][
-                                "follow_up_question"
-                            ]
+                        # Continue interview
+                        st.session_state["current_question"] = (
+                            data["answer_analysis"]["follow_up_question"]
                         )
 
                     else:
 
-                        st.session_state[
-                            "interview_complete"
-                        ] = True
+                        # Interview is complete
+                        st.session_state["interview_complete"] = True
 
+                        # Generate final interview summary
+                        summary_response = requests.post(
+                            "http://127.0.0.1:8000/interview/summary",
+                            json={
+                                "interview_history":
+                                    st.session_state["interview_history"]
+                            },
+                            timeout=120
+                        )
+
+                        if summary_response.status_code == 200:
+
+                            summary_data = summary_response.json()
+
+                            st.session_state["final_summary"] = (
+                                summary_data["interview_summary"]
+                            )
+
+                        else:
+
+                            st.session_state["final_summary"] = None
+
+                            st.error(
+                                "Could not generate the final interview summary."
+                            )
+
+                            st.write(
+                                summary_response.text
+                            )
 
                     # Reload Streamlit with next question
                     st.rerun()
