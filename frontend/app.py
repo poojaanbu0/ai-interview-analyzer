@@ -39,26 +39,21 @@ if "interview_history" not in st.session_state:
 if "speech_rate" not in st.session_state:
     st.session_state["speech_rate"] = "--"
 
-
 # Latest filler-word count
 if "filler_words" not in st.session_state:
     st.session_state["filler_words"] = "--"
-
 
 # Latest transcript
 if "transcript" not in st.session_state:
     st.session_state["transcript"] = ""
 
-
 # Latest Librosa features
 if "audio_features" not in st.session_state:
     st.session_state["audio_features"] = None
 
-
 # Latest Nemotron analysis
 if "answer_analysis" not in st.session_state:
     st.session_state["answer_analysis"] = None
-
 
 # Interview completion state
 if "interview_complete" not in st.session_state:
@@ -66,6 +61,12 @@ if "interview_complete" not in st.session_state:
 
 if "final_summary" not in st.session_state:
     st.session_state["final_summary"] = None
+
+if "awaiting_hr_decision" not in st.session_state:
+    st.session_state["awaiting_hr_decision"] = False
+
+if "show_extra_question_form" not in st.session_state:
+    st.session_state["show_extra_question_form"] = False
 
 
 # ============================================================
@@ -82,6 +83,96 @@ interview, metrics = st.columns([2, 1])
 with interview:
 
     st.subheader("Interview")
+    if (
+    st.session_state["awaiting_hr_decision"]
+    and not st.session_state["interview_complete"]
+     ):
+
+        st.divider()
+        st.subheader("HR: Extend or Finish Interview")
+
+        st.write(
+            f"{len(st.session_state['interview_history'])} "
+            "questions have been completed."
+        )
+
+        # Option 1: HR wants to add another question
+        if st.button(
+            "Add Extra Question",
+            key="add_extra_question"
+        ):
+            st.session_state["show_extra_question_form"] = True
+
+        # Display the question form only when requested
+        if st.session_state["show_extra_question_form"]:
+
+            extra_question = st.text_input(
+                "Enter the additional interview question",
+                key="extra_question_input",
+                placeholder="e.g. Explain a technical challenge you solved."
+            )
+
+            if st.button(
+                "Ask Candidate",
+                key="ask_extra_question"
+            ):
+
+                if extra_question.strip():
+
+                    st.session_state["current_question"] = (
+                        extra_question.strip()
+                    )
+
+                    st.session_state["show_extra_question_form"] = False
+                    st.session_state["awaiting_hr_decision"] = False
+
+                    st.rerun()
+
+                else:
+                    st.warning("Please enter a question.")
+
+        st.write("Or finish the interview and generate the report.")
+
+        # Option 2: HR wants the final summary
+        if st.button(
+            "Generate Interview Summary",
+            key="generate_final_summary"
+        ):
+
+            try:
+                with st.spinner("Generating final interview summary..."):
+
+                    response = requests.post(
+                        "http://127.0.0.1:8000/interview/summary",
+                        json={
+                            "interview_history":
+                                st.session_state["interview_history"]
+                        },
+                        timeout=120
+                    )
+
+                if response.status_code == 200:
+
+                    summary_data = response.json()
+
+                    st.session_state["final_summary"] = (
+                        summary_data["interview_summary"]
+                    )
+
+                    st.session_state["interview_complete"] = True
+                    st.session_state["awaiting_hr_decision"] = False
+
+                    st.rerun()
+
+                else:
+                    st.error(
+                        f"Summary API failed: {response.status_code}"
+                    )
+                    st.write(response.text)
+
+            except requests.exceptions.RequestException as error:
+                st.error(f"Could not generate summary: {error}")
+
 
 
     # --------------------------------------------------------
@@ -105,7 +196,10 @@ with interview:
     # ACTIVE INTERVIEW
     # --------------------------------------------------------
 
-    if not st.session_state["interview_complete"]:
+    if (
+    not st.session_state["interview_complete"]
+    and not st.session_state["awaiting_hr_decision"]
+     ):
 
         question = st.session_state["current_question"]
 
@@ -240,38 +334,42 @@ with interview:
 
                     else:
 
+                        # Five or more questions completed.
+                        # Wait for HR to decide what happens next.
+                        st.session_state["awaiting_hr_decision"] = True
+
                         # Interview is complete
-                        st.session_state["interview_complete"] = True
+                        # st.session_state["interview_complete"] = True
 
-                        # Generate final interview summary
-                        summary_response = requests.post(
-                            "http://127.0.0.1:8000/interview/summary",
-                            json={
-                                "interview_history":
-                                    st.session_state["interview_history"]
-                            },
-                            timeout=120
-                        )
+                        # # Generate final interview summary
+                        # summary_response = requests.post(
+                        #     "http://127.0.0.1:8000/interview/summary",
+                        #     json={
+                        #         "interview_history":
+                        #             st.session_state["interview_history"]
+                        #     },
+                        #     timeout=120
+                        # )
 
-                        if summary_response.status_code == 200:
+                        # if summary_response.status_code == 200:
 
-                            summary_data = summary_response.json()
+                        #     summary_data = summary_response.json()
 
-                            st.session_state["final_summary"] = (
-                                summary_data["interview_summary"]
-                            )
+                        #     st.session_state["final_summary"] = (
+                        #         summary_data["interview_summary"]
+                        #     )
 
-                        else:
+                        # else:
 
-                            st.session_state["final_summary"] = None
+                        #     st.session_state["final_summary"] = None
 
-                            st.error(
-                                "Could not generate the final interview summary."
-                            )
+                        #     st.error(
+                        #         "Could not generate the final interview summary."
+                        #     )
 
-                            st.write(
-                                summary_response.text
-                            )
+                        #     st.write(
+                        #         summary_response.text
+                        #     )
 
                     # Reload Streamlit with next question
                     st.rerun()
@@ -316,18 +414,14 @@ with interview:
     # INTERVIEW COMPLETE
     # ========================================================
 
-    else:
-
-        st.success(
-            "Interview completed."
-        )
+    if st.session_state["interview_complete"]:
+        st.success("Interview completed.")
 
         st.write(
             f"You answered "
             f"{len(st.session_state['interview_history'])} "
             f"questions."
         )
-
 
 # ============================================================
 # RIGHT SIDE - HR METRICS
