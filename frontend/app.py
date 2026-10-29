@@ -68,6 +68,9 @@ if "awaiting_hr_decision" not in st.session_state:
 if "show_extra_question_form" not in st.session_state:
     st.session_state["show_extra_question_form"] = False
 
+if "processed_audio_questions" not in st.session_state:
+    st.session_state["processed_audio_questions"] = []
+
 
 # ============================================================
 # PAGE LAYOUT
@@ -214,9 +217,10 @@ with interview:
             len(st.session_state["interview_history"]) + 1
         )
 
-        st.caption(
-            f"Question {current_number} of {MAX_QUESTIONS}"
-        )
+        if current_number <= MAX_QUESTIONS:
+            st.caption(f"Question {current_number} of {MAX_QUESTIONS}")
+        else:
+            st.caption(f"Extra Question {current_number - MAX_QUESTIONS}")
 
 
         # Candidate records answer
@@ -230,7 +234,10 @@ with interview:
         # SEND AUDIO TO FASTAPI
         # ----------------------------------------------------
 
-        if audio is not None:
+        if (
+        audio is not None
+        and current_number not in st.session_state["processed_audio_questions"]
+        ):
 
             files = {
                 "audio": (
@@ -320,6 +327,7 @@ with interview:
                         interview_round
                     )
 
+                    st.session_state["processed_audio_questions"].append(current_number)
 
                     # --------------------------------------------
                     # DECIDE WHETHER INTERVIEW CONTINUES
@@ -540,3 +548,33 @@ with metrics:
         st.write(
             analysis["overall_assessment"]
         )
+
+        # --------------------------------------------------------
+# FINAL INTERVIEW SUMMARY
+# --------------------------------------------------------
+
+if st.session_state["final_summary"] is not None:
+
+    st.divider()
+    st.subheader("Final Interview Summary")
+
+    summary = st.session_state["final_summary"]
+
+    st.write("**Overall Summary**")
+    st.write(summary["overall_summary"])
+
+    st.write("**Key Strengths**")
+    for strength in summary["key_strengths"]:
+        st.write(f"• {strength}")
+
+    st.write("**Improvement Areas**")
+    for area in summary["improvement_areas"]:
+        st.write(f"• {area}")
+
+    st.write("**Technical Topics**")
+    for topic in summary["technical_topics"]:
+        st.write(f"• {topic}")
+
+    st.write("**Communication Observations**")
+    for observation in summary["communication_observations"]:
+        st.write(f"• {observation}")
