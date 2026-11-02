@@ -86,97 +86,6 @@ interview, metrics = st.columns([2, 1])
 with interview:
 
     st.subheader("Interview")
-    if (
-    st.session_state["awaiting_hr_decision"]
-    and not st.session_state["interview_complete"]
-     ):
-
-        st.divider()
-        st.subheader("HR: Extend or Finish Interview")
-
-        st.write(
-            f"{len(st.session_state['interview_history'])} "
-            "questions have been completed."
-        )
-
-        # Option 1: HR wants to add another question
-        if st.button(
-            "Add Extra Question",
-            key="add_extra_question"
-        ):
-            st.session_state["show_extra_question_form"] = True
-
-        # Display the question form only when requested
-        if st.session_state["show_extra_question_form"]:
-
-            extra_question = st.text_input(
-                "Enter the additional interview question",
-                key="extra_question_input",
-                placeholder="e.g. Explain a technical challenge you solved."
-            )
-
-            if st.button(
-                "Ask Candidate",
-                key="ask_extra_question"
-            ):
-
-                if extra_question.strip():
-
-                    st.session_state["current_question"] = (
-                        extra_question.strip()
-                    )
-
-                    st.session_state["show_extra_question_form"] = False
-                    st.session_state["awaiting_hr_decision"] = False
-
-                    st.rerun()
-
-                else:
-                    st.warning("Please enter a question.")
-
-        st.write("Or finish the interview and generate the report.")
-
-        # Option 2: HR wants the final summary
-        if st.button(
-            "Generate Interview Summary",
-            key="generate_final_summary"
-        ):
-
-            try:
-                with st.spinner("Generating final interview summary..."):
-
-                    response = requests.post(
-                        "http://127.0.0.1:8000/interview/summary",
-                        json={
-                            "interview_history":
-                                st.session_state["interview_history"]
-                        },
-                        timeout=120
-                    )
-
-                if response.status_code == 200:
-
-                    summary_data = response.json()
-
-                    st.session_state["final_summary"] = (
-                        summary_data["interview_summary"]
-                    )
-
-                    st.session_state["interview_complete"] = True
-                    st.session_state["awaiting_hr_decision"] = False
-
-                    st.rerun()
-
-                else:
-                    st.error(
-                        f"Summary API failed: {response.status_code}"
-                    )
-                    st.write(response.text)
-
-            except requests.exceptions.RequestException as error:
-                st.error(f"Could not generate summary: {error}")
-
-
 
     # --------------------------------------------------------
     # DISPLAY PREVIOUS CONVERSATION
@@ -439,6 +348,98 @@ with metrics:
 
     st.subheader("Live Analysis")
 
+    if (
+    st.session_state["awaiting_hr_decision"]
+    and not st.session_state["interview_complete"]
+     ):
+    
+        st.divider()
+        st.subheader("HR: Extend or Finish Interview")
+    
+        st.write(
+            f"{len(st.session_state['interview_history'])} "
+            "questions have been completed."
+        )
+    
+        # Option 1: HR wants to add another question
+        if st.button(
+            "Add Extra Question",
+            key="add_extra_question"
+        ):
+            st.session_state["show_extra_question_form"] = True
+    
+        # Display the question form only when requested
+        if st.session_state["show_extra_question_form"]:
+    
+            extra_question = st.text_input(
+                "Enter the additional interview question",
+                key="extra_question_input",
+                placeholder="e.g. Explain a technical challenge you solved."
+            )
+    
+            if st.button(
+                "Ask Candidate",
+                key="ask_extra_question"
+            ):
+    
+                if extra_question.strip():
+    
+                    st.session_state["current_question"] = (
+                        extra_question.strip()
+                    )
+    
+                    st.session_state["show_extra_question_form"] = False
+                    st.session_state["awaiting_hr_decision"] = False
+    
+                    st.rerun()
+    
+                else:
+                    st.warning("Please enter a question.")
+    
+        st.write("Or finish the interview and generate the report.")
+    
+        # Option 2: HR wants the final summary
+        if st.button(
+            "Generate Interview Summary",
+            key="generate_final_summary"
+        ):
+    
+            try:
+                with st.spinner("Generating final interview summary..."):
+    
+                    response = requests.post(
+                        "http://127.0.0.1:8000/interview/summary",
+                        json={
+                            "interview_history":
+                                st.session_state["interview_history"]
+                        },
+                        timeout=120
+                    )
+    
+                if response.status_code == 200:
+    
+                    summary_data = response.json()
+    
+                    st.session_state["final_summary"] = (
+                        summary_data["interview_summary"]
+                    )
+    
+                    st.session_state["interview_complete"] = True
+                    st.session_state["awaiting_hr_decision"] = False
+    
+                    st.rerun()
+    
+                else:
+                    st.error(
+                        f"Summary API failed: {response.status_code}"
+                    )
+                    st.write(response.text)
+    
+            except requests.exceptions.RequestException as error:
+                st.error(f"Could not generate summary: {error}")
+    
+    
+   
 
     # --------------------------------------------------------
     # SPEECH METRICS
