@@ -24,9 +24,10 @@ if not api_key:
 
 client = OpenAI(
     base_url="https://integrate.api.nvidia.com/v1",
-    api_key=api_key
+    api_key=api_key,
+    timeout=90.0,
+    max_retries=2
 )
-
 
 # -----------------------------------
 # OUTPUT SCHEMA
@@ -102,6 +103,11 @@ Rules:
 - Do not include reasoning or thinking steps.
 - Do not make a hiring decision.
 """
+    print("\n========== NVIDIA ANALYSIS STARTED ==========")
+    print("Question:", question)
+    print("Transcript length:", len(transcript))
+    print("Speech rate:", speech_rate)
+    print("Filler words:", filler_words)
 
     response = client.chat.completions.create(
         model="nvidia/nemotron-3.5-lightning-30b-a3b",
@@ -122,7 +128,7 @@ Rules:
 
         temperature=0.2,
         max_tokens=500,
-
+        response_format={"type": "json_object"},
         extra_body={
             "chat_template_kwargs": {
                 "enable_thinking": False
@@ -130,6 +136,7 @@ Rules:
         }
     )
 
+    print("\n========== NVIDIA ANALYSIS COMPLETED ==========")
     # -----------------------------------
     # DEBUG INFORMATION
     # -----------------------------------
@@ -149,9 +156,9 @@ Rules:
     # -----------------------------------
 
     raw_response = response.choices[0].message.content
-
+  
     print("\n----- RAW NVIDIA RESPONSE -----")
-    print(raw_response)
+    print(repr(raw_response))
 
     # -----------------------------------
     # PARSE JSON
