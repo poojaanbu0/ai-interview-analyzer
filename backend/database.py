@@ -8,10 +8,16 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 # Load environment variables from the .env file
 load_dotenv()
 
-# pip install fastapi sqlalchemy pymysql cryptography python-dotenv
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "mysql+pymysql://root:password@localhost:3306/ai_interview?charset=utf8mb4",
+from sqlalchemy.engine import URL
+
+DATABASE_URL = URL.create(
+    "mysql+pymysql",
+    username=os.getenv("DB_USER", "root"),
+    password=os.getenv("DB_PASSWORD"),
+    host=os.getenv("DB_HOST", "localhost"),
+    port=int(os.getenv("DB_PORT", 3306)),
+    database=os.getenv("DB_NAME", "ai_interview"),
+    query={"charset": "utf8mb4"},
 )
 
 engine = create_engine(
