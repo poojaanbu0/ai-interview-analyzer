@@ -12,3 +12,4 @@ __pycache__/
 models/
 
 uploads/
+Trained_models/faster_whisper_base/
