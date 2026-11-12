@@ -62,6 +62,7 @@ export const api = {
 
   // ---- HR ----
   listInterviews: () => request("/interviews"),
+  getInterview: (id) => request(`/interviews/${id}`),
   createInterview: (data) => request("/interviews", { method: "POST", json: data }),
   updateInterview: (id, data) => request(`/interviews/${id}`, { method: "PATCH", json: data }),
   listApplicants: (id) => request(`/interviews/${id}/applicants`),

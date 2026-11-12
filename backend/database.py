@@ -1,14 +1,13 @@
 import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import make_url
+from sqlalchemy.engine import URL, make_url
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 
 # Load environment variables from the .env file
 load_dotenv()
 
-from sqlalchemy.engine import URL
 
 DATABASE_URL = URL.create(
     "mysql+pymysql",
