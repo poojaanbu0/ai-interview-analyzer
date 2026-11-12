@@ -5,9 +5,9 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import HRDashboard from "./pages/HRDashboard.jsx";
 import CreateInterview from "./pages/CreateInterview.jsx";
-import Applicants from "./pages/Applicants.jsx";
-import CandidateDashboard from "./pages/CandidateDashboard.jsx";
-import MyApplications from "./pages/MyApplications.jsx";
+import EditInterview from "./pages/EditInterview.jsx";
+import InterviewDetail from "./pages/InterviewDetail.jsx";
+import MyInterviews from "./pages/MyInterviews.jsx";
 import InterviewRoom from "./pages/InterviewRoom.jsx";
 
 // Keeps a candidate out of HR pages (and the reverse) when they type the URL.
@@ -34,15 +34,15 @@ export default function App() {
       <Route element={<RequireRole role="hr" />}>
         <Route element={<Layout />}>
           <Route path="/hr" element={<HRDashboard />} />
-          <Route path="/hr/jobs/new" element={<CreateInterview />} />
-          <Route path="/hr/jobs/:id/applicants" element={<Applicants />} />
+          <Route path="/hr/interviews/new" element={<CreateInterview />} />
+          <Route path="/hr/interviews/:id" element={<InterviewDetail />} />
+          <Route path="/hr/interviews/:id/edit" element={<EditInterview />} />
         </Route>
       </Route>
 
       <Route element={<RequireRole role="candidate" />}>
         <Route element={<Layout />}>
-          <Route path="/candidate" element={<CandidateDashboard />} />
-          <Route path="/candidate/applications" element={<MyApplications />} />
+          <Route path="/candidate" element={<MyInterviews />} />
           <Route path="/candidate/interview/:applicationId" element={<InterviewRoom />} />
         </Route>
       </Route>

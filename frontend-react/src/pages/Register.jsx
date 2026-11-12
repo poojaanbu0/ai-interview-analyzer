@@ -6,7 +6,7 @@ import { homeFor, useAuth } from "../AuthContext.jsx";
 export default function Register() {
   const { user, login } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "candidate" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -19,7 +19,7 @@ export default function Register() {
     setError("");
     setBusy(true);
     try {
-      await api.register({ ...form, email: form.email.trim(), name: form.name.trim() });
+      await api.register({ ...form, name: form.name.trim(), email: form.email.trim(), phone: form.phone.trim() });
       const loggedIn = await login(form.email.trim(), form.password); // sign in straight away
       navigate(homeFor(loggedIn.role), { replace: true });
     } catch (err) {
@@ -32,7 +32,7 @@ export default function Register() {
   return (
     <div className="auth-page">
       <form className="card auth-card" onSubmit={handleSubmit}>
-        <h1>Create account</h1>
+        <h1>Candidate registration</h1>
 
         <label>
           Full name
@@ -45,16 +45,13 @@ export default function Register() {
         </label>
 
         <label>
-          Password (8 to 72 characters)
-          <input type="password" value={form.password} onChange={update("password")} required minLength={8} maxLength={72} />
+          Phone number
+          <input type="tel" value={form.phone} onChange={update("phone")} required placeholder="10-digit mobile number" />
         </label>
 
         <label>
-          I am a
-          <select value={form.role} onChange={update("role")}>
-            <option value="candidate">Candidate</option>
-            <option value="hr">HR</option>
-          </select>
+          Password (8 to 72 characters)
+          <input type="password" value={form.password} onChange={update("password")} required minLength={8} maxLength={72} />
         </label>
 
         {error && <p className="error">{error}</p>}
@@ -66,6 +63,7 @@ export default function Register() {
         <p className="muted">
           Already registered? <Link to="/login">Log in</Link>
         </p>
+        <p className="muted">HR accounts are created by the administrator.</p>
       </form>
     </div>
   );

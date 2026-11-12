@@ -126,3 +126,33 @@ tbody tr:last-child td { border-bottom: 0; }
 .status-in_progress, .status-shortlisted { background: #fef3c7; color: #92400e; }
 .status-completed, .status-interviewed { background: #dcfce7; color: #166534; }
 .status-rejected, .status-abandoned { background: #fee2e2; color: #991b1b; }
+
+/* ---------- interview room ---------- */
+.interview-room { display: flex; flex-direction: column; gap: 1rem; max-width: 720px; margin: 0 auto; }
+.interview-room p { margin: 0; }
+.question { margin: 0.5rem 0; font-size: 1.4rem; line-height: 1.4; }
+.thank-you { max-width: 720px; margin: 2rem auto; text-align: center; display: flex; flex-direction: column; gap: 1rem; align-items: center; }
+.progress { height: 6px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.progress-bar { height: 100%; background: var(--primary); transition: width 0.3s; }
+.rec { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; }
+.rec-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--danger); animation: pulse 1s infinite; }
+.processing { display: flex; align-items: center; gap: 0.75rem; color: var(--muted); }
+.spinner { width: 18px; height: 18px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 50% { opacity: 0.3; } }
+
+/* ---------- assigned-interview flow ---------- */
+.status-scheduled, .status-upcoming { background: #dbeafe; color: #1d4ed8; }
+.status-ready { background: #dcfce7; color: #166534; }
+.status-cancelled { background: #fee2e2; color: #991b1b; }
+.action-col { flex-direction: column; align-items: flex-end; }
+.hint { font-size: 0.8rem; font-weight: 400; color: var(--muted); }
+.form-grid h2 { margin: 0.5rem 0 0; font-size: 1.05rem; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+@media (max-width: 640px) { .detail-grid { grid-template-columns: 1fr; } }
+section.card { margin-bottom: 0.75rem; }
+section.card h2 { margin: 0 0 0.5rem; font-size: 1.05rem; }
+.kv { margin: 0; }
+.kv dt { font-size: 0.8rem; color: var(--muted); }
+.kv dd { margin: 0 0 0.6rem; }
+:disabled.btn { cursor: not-allowed; }

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..dependencies import get_current_user
-from ..models.user import User
+from ..models.user import User, UserRole
 from ..schemas.user import Token, UserCreate, UserOut
 from ..security import create_access_token, hash_password, verify_password
 
@@ -15,6 +15,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(data: UserCreate, db: Session = Depends(get_db)):
+    """Candidates only. HR accounts are created with `python -m backend.create_hr`."""
     email = data.email.lower()
 
     if db.scalar(select(User).where(User.email == email)):
@@ -23,8 +24,9 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
     user = User(
         name=data.name.strip(),
         email=email,
+        phone=data.phone,
         password_hash=hash_password(data.password),
-        role=data.role,
+        role=UserRole.candidate,  # fixed by the server, the client cannot choose it
     )
     db.add(user)
     try:

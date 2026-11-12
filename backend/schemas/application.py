@@ -1,34 +1,30 @@
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, field_serializer
 
-from ..models.application import ApplicationStatus
 from ..models.interview_session import SessionStatus
+from ..utils import utc_iso
 
 
-class ApplicantOut(BaseModel):
-    """One row in HR's applicant list. Server file paths are never exposed."""
+class MyInterviewOut(BaseModel):
+    """One assigned interview, as the candidate sees it.
+    No candidate summary, no HR details and no candidate ID."""
     application_id: int
-    candidate_id: int
-    candidate_name: str
-    candidate_email: EmailStr
-    status: ApplicationStatus
-    applied_at: datetime
-    session_status: Optional[SessionStatus] = None  # None = has not attended yet
-    has_report: bool = False
-
-
-class ApplicationOut(BaseModel):
-    """One row in the candidate's 'my applications' list."""
-    application_id: int
-    interview_id: int
     job_title: str
-    status: ApplicationStatus
-    applied_at: datetime
-    session_id: Optional[int] = None
-    session_status: Optional[SessionStatus] = None
-    can_attend: bool = True  # drives the Attend Interview button
+    job_description: str
+    requirements: Optional[str] = None
+    location: Optional[str] = None
+    employment_type: Optional[str] = None
+    experience_level: Optional[str] = None
+    scheduled_at: Optional[datetime] = None
+    state: Literal["upcoming", "ready", "in_progress", "completed"]
+    can_attend: bool
+    seconds_until_start: int = 0  # decided by the server clock
+
+    @field_serializer("scheduled_at")
+    def serialize_scheduled_at(self, value: Optional[datetime]) -> Optional[str]:
+        return utc_iso(value)
 
 
 class SessionOut(BaseModel):

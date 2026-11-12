@@ -5,7 +5,7 @@ import os
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-MODEL_PATH = PROJECT_ROOT / "models" / "faster_whisper_base"
+MODEL_PATH = PROJECT_ROOT / "Trained_models" / "faster_whisper_base"
 
 print("Model path:", MODEL_PATH)
 print("Model exists:", MODEL_PATH.exists())

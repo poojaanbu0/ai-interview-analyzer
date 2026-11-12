@@ -7,8 +7,7 @@ An AI-powered interview platform that allows HR teams to create job openings, ca
 Install the following before setting up the project:
 
 - Python 3.10+
-- MySQL Server
-- MySQL Workbench or DBeaver
+- A Supabase project
 - Visual Studio Code (recommended)
 - Git
 
@@ -58,27 +57,23 @@ Install the required packages:
 pip install -r requirements.txt
 ```
 
-## 5. Configure MySQL Database
+## 5. Configure Supabase Database
 
-Open MySQL Workbench or DBeaver and execute:
-
-```sql
-CREATE DATABASE ai_interview_analyzer;
-```
+Create a Supabase project, then open **Project Settings → Database** and copy a
+PostgreSQL connection string. Use the **Session pooler** connection string if
+your network does not support Supabase's direct connection.
 
 ## 6. Configure Environment Variables
 
-Create a `.env` file in the project root directory.
+Keep application secrets such as `NVIDIA_API_KEY` in the project-root `.env`.
+For the database, copy `backend/.env.example` to `backend/.env` and replace
+the sample URL with the connection string copied from Supabase.
 
-Add the following configuration:
+The backend-specific `.env` takes precedence over the root `.env` for matching
+variables.
 
-```env
-DATABASE_URL=mysql+pymysql://<username>:<password>@localhost:3306/ai_interview_analyzer
-
-NVIDIA_API_KEY=<your_nvidia_api_key>
-```
-
-Replace the placeholders with your MySQL credentials and NVIDIA API key.
+If your database password contains special characters, use the URL-encoded
+password from the connection string.
 
 **Important:** Never commit your `.env` file or expose API keys in the repository.
 
@@ -92,7 +87,8 @@ python -c "from backend.database import Base, engine; from backend.models import
 
 This creates the database tables defined by the imported SQLAlchemy models.
 
-Verify that the tables have been created using MySQL Workbench or DBeaver.
+The backend creates the SQLAlchemy model tables in Supabase when it starts.
+You can verify them in the Supabase Table Editor.
 
 ## 8. Run the FastAPI Backend
 
@@ -149,7 +145,7 @@ uvicorn backend.main:app --reload
 
 ## Project Development Workflow
 
-1. Configure the MySQL database.
+1. Configure the Supabase PostgreSQL database.
 2. Create SQLAlchemy models and database relationships.
 3. Implement user registration and login.
 4. Implement HR job creation and candidate applications.
@@ -162,6 +158,6 @@ uvicorn backend.main:app --reload
 
 - Always run backend commands from the project root directory.
 - Ensure the virtual environment is activated before installing dependencies or running the backend.
-- Ensure MySQL Server is running before starting the application.
+- Ensure `DATABASE_URL` points to your Supabase PostgreSQL database before starting the application.
 - Keep API keys and database credentials in `.env`.
 - Do not commit `.venv/`, `.env`, or generated model/cache files to Git.

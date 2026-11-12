@@ -3,18 +3,51 @@ export const formatDate = (iso) =>
     ? new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
     : "";
 
+// The backend sends times in UTC ("...Z"); the browser shows them in the viewer's own time zone.
+export const formatDateTime = (iso) =>
+  iso
+    ? new Date(iso).toLocaleString(undefined, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      })
+    : "Not scheduled";
+
 // "in_progress" -> "In progress"
 export const label = (value) =>
   value ? value.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase()) : "";
 
-const ALLOWED_RESUME_TYPES = [".pdf", ".doc", ".docx"];
-const MAX_RESUME_MB = 5; // keep in sync with MAX_RESUME_MB on the backend
-
-// returns an error message, or "" when the file is fine
-export function validateResume(file) {
-  const dot = file.name.lastIndexOf(".");
-  const ext = dot === -1 ? "" : file.name.slice(dot).toLowerCase();
-  if (!ALLOWED_RESUME_TYPES.includes(ext)) return "Resume must be a PDF, DOC or DOCX file";
-  if (file.size > MAX_RESUME_MB * 1024 * 1024) return `Resume must be smaller than ${MAX_RESUME_MB} MB`;
-  return "";
+// UTC ISO string -> value for <input type="datetime-local"> in the user's own time zone
+export function toInputValue(iso) {
+  const d = new Date(iso);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
+// value of <input type="datetime-local"> (local time) -> UTC ISO string for the API
+export const fromInputValue = (value) => new Date(value).toISOString();
+
+export function formatCountdown(total) {
+  const d = Math.floor(total / 86400);
+  const h = Math.floor((total % 86400) / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (d > 0) return `${d}d ${h}h`;
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m ${String(s).padStart(2, "0")}s`;
+}
+
+// What HR sees as the interview's status
+export function hrStatus(interview) {
+  if (interview.status === "closed") return "cancelled";
+  const session = interview.assignment?.session_status;
+  if (session === "completed" || session === "abandoned" || session === "in_progress") return session;
+  return "scheduled";
+}
+
+// HR can edit or cancel only until the candidate has started
+export const hasStarted = (interview) => Boolean(interview.assignment?.session_status);
+
+export const candidateLabel = (c) => `${c.name} - ${c.candidate_code}`;

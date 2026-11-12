@@ -14,9 +14,9 @@ function errorMessage(data, fallback) {
   if (!data || !data.detail) return fallback;
   if (typeof data.detail === "string") return data.detail;
   if (Array.isArray(data.detail)) {
-    // FastAPI validation errors (422): "email: value is not a valid email address"
+    // FastAPI validation errors (422): "phone: Value error, Enter a valid 10-digit mobile number"
     return data.detail
-      .map((d) => `${(d.loc || []).slice(1).join(".")}: ${d.msg}`)
+      .map((d) => `${(d.loc || []).slice(1).join(".")}: ${String(d.msg).replace(/^Value error, /, "")}`)
       .join("; ");
   }
   return fallback;
@@ -61,42 +61,20 @@ export const api = {
   me: () => request("/auth/me"),
 
   // ---- HR ----
+  listCandidates: () => request("/hr/candidates"),
   listInterviews: () => request("/interviews"),
   getInterview: (id) => request(`/interviews/${id}`),
   createInterview: (data) => request("/interviews", { method: "POST", json: data }),
   updateInterview: (id, data) => request(`/interviews/${id}`, { method: "PATCH", json: data }),
-  listApplicants: (id) => request(`/interviews/${id}/applicants`),
 
   // ---- candidate ----
-  browseJobs: (q) => request(`/jobs${q ? `?q=${encodeURIComponent(q)}` : ""}`),
-  applyToJob: (interviewId, file) => {
-    const form = new FormData();
-    form.append("interview_id", interviewId);
-    form.append("resume", file);
-    return request("/applications", { method: "POST", body: form });
-  },
-  myApplications: () => request("/applications/mine"),
+  myInterviews: () => request("/applications/mine"),
   attendInterview: (applicationId) =>
     request(`/applications/${applicationId}/attend`, { method: "POST" }),
-  finishInterview: (applicationId) =>
-    request(`/applications/${applicationId}/finish`, { method: "POST" }),
+  interviewState: (applicationId) => request(`/applications/${applicationId}/interview/state`),
+  submitAnswer: (applicationId, wavBlob) => {
+    const form = new FormData();
+    form.append("audio", wavBlob, "answer.wav");
+    return request(`/applications/${applicationId}/interview/answer`, { method: "POST", body: form });
+  },
 };
-
-// HR resume download: a plain <a href> can't send the token, so fetch it as a file.
-export async function downloadResume(applicationId) {
-  const res = await fetch(`${API_URL}/hr/applications/${applicationId}/resume`, {
-    headers: { Authorization: `Bearer ${getToken()}` },
-  });
-  if (!res.ok) throw new ApiError("Could not download the resume", res.status);
-
-  const disposition = res.headers.get("Content-Disposition") || "";
-  const match = disposition.match(/filename="?([^";]+)"?/);
-  const filename = match ? match[1] : `resume_${applicationId}`;
-
-  const url = URL.createObjectURL(await res.blob());
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-}

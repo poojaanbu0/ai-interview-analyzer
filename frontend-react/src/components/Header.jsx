@@ -2,13 +2,10 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext.jsx";
 
 const HR_LINKS = [
-  { to: "/hr", label: "My jobs", end: true },
-  { to: "/hr/jobs/new", label: "Create interview" },
+  { to: "/hr", label: "My interviews", end: true },
+  { to: "/hr/interviews/new", label: "Create interview" },
 ];
-const CANDIDATE_LINKS = [
-  { to: "/candidate", label: "Browse jobs", end: true },
-  { to: "/candidate/applications", label: "My applications" },
-];
+const CANDIDATE_LINKS = [{ to: "/candidate", label: "My interviews", end: true }];
 
 export default function Header() {
   const { user, logout } = useAuth();
