@@ -1,45 +1,39 @@
-from pathlib import Path
-from faster_whisper import WhisperModel
-import tempfile
+
 import os
+import io
+import wave
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+from dotenv import load_dotenv
+from groq import Groq
 
-MODEL_PATH = PROJECT_ROOT / "Trained_models" / "faster_whisper_base"
+load_dotenv()
 
-print("Model path:", MODEL_PATH)
-print("Model exists:", MODEL_PATH.exists())
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-model = WhisperModel(
-    str(MODEL_PATH),
-    device="cpu",
-    compute_type="int8"
-)
+if not GROQ_API_KEY:
+    raise ValueError("GROQ_API_KEY is missing from .env")
+
+client = Groq(api_key=GROQ_API_KEY)
 
 
-def transcribe_audio(
-    audio_bytes: bytes
-):
-    with tempfile.NamedTemporaryFile(
-        delete=False,
-        suffix=".wav"
-    ) as temp_file:
+def transcribe_audio(audio_bytes: bytes):
 
-        temp_file.write(audio_bytes)
-        temp_path = temp_file.name
+    # Calculate audio duration from the WAV file
+    with wave.open(io.BytesIO(audio_bytes), "rb") as wav_file:
+        frames = wav_file.getnframes()
+        sample_rate = wav_file.getframerate()
 
-    try:
-        segments, info = model.transcribe(
-            temp_path,
-            beam_size=5
-        )
+        duration = frames / float(sample_rate)
 
-        transcript = " ".join(
-            segment.text.strip()
-            for segment in segments
-        )
+    # Send audio to Groq
+    transcription = client.audio.transcriptions.create(
+        file=("answer.wav", audio_bytes),
+        model="whisper-large-v3-turbo",
+        response_format="json",
+        language="en",
+        temperature=0.0
+    )
 
-        return transcript, info.duration
+    transcript = transcription.text.strip()
 
-    finally:
-        os.remove(temp_path)  
+    return transcript, duration
