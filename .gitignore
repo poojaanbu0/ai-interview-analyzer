@@ -8,8 +8,8 @@
 __pycache__/
 *.pyc
 
-# Local Whisper model
-models/
+/backend/models/confidence_mlp.joblib
+
 
 uploads/
 Trained_models/faster_whisper_base
