@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api.js";
@@ -11,19 +12,29 @@ function InterviewCard({ item, onStartTimeReached }) {
   const [expanded, setExpanded] = useState(false);
 
   const buttonLabel =
-    item.state === "in_progress" ? "Resume interview" : item.state === "ready" ? "Start interview" : "Attend interview";
+    item.state === "in_progress"
+      ? "Resume interview"
+      : item.state === "ready"
+        ? "Start interview"
+        : "Attend interview";
 
   return (
     <article className="card">
       <div className="item">
         <div className="item-main">
           <h2>{item.job_title}</h2>
+
           <div className="meta">
             <StatusBadge value={item.state} />
             {item.location && <span className="chip">{item.location}</span>}
-            {item.employment_type && <span className="chip">{item.employment_type}</span>}
-            {item.experience_level && <span className="chip">{item.experience_level}</span>}
+            {item.employment_type && (
+              <span className="chip">{item.employment_type}</span>
+            )}
+            {item.experience_level && (
+              <span className="chip">{item.experience_level}</span>
+            )}
           </div>
+
           <p>
             <strong>Scheduled:</strong> {formatDateTime(item.scheduled_at)}
           </p>
@@ -34,14 +45,21 @@ function InterviewCard({ item, onStartTimeReached }) {
             <span className="muted">Interview completed</span>
           ) : (
             <>
-              <button className="btn" disabled={!item.can_attend} onClick={() => navigate(`/candidate/interview/${item.application_id}`)}>
+              <button
+                className="btn"
+                disabled={!item.can_attend}
+                onClick={() =>
+                  navigate(`/candidate/interview/${item.interview_id}`)
+                }
+              >
                 {buttonLabel}
               </button>
+
               {item.state === "upcoming" && (
                 <span className="muted">
                   Starts in{" "}
                   <Countdown
-                    key={`${item.application_id}-${item.seconds_until_start}`}
+                    key={`${item.interview_id}-${item.seconds_until_start}`}
                     seconds={item.seconds_until_start}
                     onDone={onStartTimeReached}
                   />
@@ -49,7 +67,11 @@ function InterviewCard({ item, onStartTimeReached }) {
               )}
             </>
           )}
-          <button className="btn btn-secondary" onClick={() => setExpanded(!expanded)}>
+
+          <button
+            className="btn btn-secondary"
+            onClick={() => setExpanded(!expanded)}
+          >
             {expanded ? "Hide details" : "View details"}
           </button>
         </div>
@@ -59,6 +81,7 @@ function InterviewCard({ item, onStartTimeReached }) {
         <div>
           <h3>Job description</h3>
           <p className="text-block">{item.job_description}</p>
+
           {item.requirements && (
             <>
               <h3>Requirements</h3>
@@ -72,7 +95,12 @@ function InterviewCard({ item, onStartTimeReached }) {
 }
 
 export default function MyInterviews() {
-  const { data: interviews, loading, error, reload } = useFetch(() => api.myInterviews());
+  const {
+    data: interviews,
+    loading,
+    error,
+    reload,
+  } = useFetch(() => api.myInterviews());
 
   return (
     <>
@@ -81,15 +109,23 @@ export default function MyInterviews() {
       </div>
 
       {error && <p className="error">{error}</p>}
+
       {loading && !interviews && <p className="muted">Loading...</p>}
+
       {interviews && interviews.length === 0 && (
-        <p className="muted">No interviews have been assigned to you yet. They will appear here once HR schedules one.</p>
+        <p className="muted">
+          No interviews have been assigned to you yet. They will appear here
+          once HR schedules one.
+        </p>
       )}
 
       <div className="list">
         {interviews?.map((item) => (
-          // when the countdown ends, ask the server again; it decides whether the button is enabled
-          <InterviewCard key={item.application_id} item={item} onStartTimeReached={reload} />
+          <InterviewCard
+            key={item.interview_id}
+            item={item}
+            onStartTimeReached={reload}
+          />
         ))}
       </div>
     </>

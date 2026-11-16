@@ -64,17 +64,27 @@ export const api = {
   listCandidates: () => request("/hr/candidates"),
   listInterviews: () => request("/interviews"),
   getInterview: (id) => request(`/interviews/${id}`),
+  getInterviewReport: (id) => request(`/interviews/${id}/report`),
   createInterview: (data) => request("/interviews", { method: "POST", json: data }),
   updateInterview: (id, data) => request(`/interviews/${id}`, { method: "PATCH", json: data }),
 
+
   // ---- candidate ----
-  myInterviews: () => request("/applications/mine"),
-  attendInterview: (applicationId) =>
-    request(`/applications/${applicationId}/attend`, { method: "POST" }),
-  interviewState: (applicationId) => request(`/applications/${applicationId}/interview/state`),
-  submitAnswer: (applicationId, wavBlob) => {
+  myInterviews: () => request("/interviews/mine"),
+
+  attendInterview: (interviewId) =>
+    request(`/interviews/${interviewId}/attend`, { method: "POST" }),
+
+  interviewState: (interviewId) =>
+    request(`/interviews/${interviewId}/state`),
+
+  submitAnswer: (interviewId, wavBlob) => {
     const form = new FormData();
     form.append("audio", wavBlob, "answer.wav");
-    return request(`/applications/${applicationId}/interview/answer`, { method: "POST", body: form });
+
+    return request(`/interviews/${interviewId}/answer`, {
+      method: "POST",
+      body: form,
+    });
   },
 };

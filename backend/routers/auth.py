@@ -1,3 +1,4 @@
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(data: UserCreate, db: Session = Depends(get_db)):
-    """Candidates only. HR accounts are created with `python -m backend.create_hr`."""
+    """Candidates only. HR accounts are created with python -m backend.create_hr."""
     email = data.email.lower()
 
     if db.scalar(select(User).where(User.email == email)):
@@ -26,22 +27,29 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
         email=email,
         phone=data.phone,
         password_hash=hash_password(data.password),
-        role=UserRole.candidate,  # fixed by the server, the client cannot choose it
+        role=UserRole.candidate,
     )
+
     db.add(user)
+
     try:
         db.commit()
-    except IntegrityError:  # two requests registered the same email at once
+    except IntegrityError:
         db.rollback()
         raise HTTPException(status.HTTP_409_CONFLICT, "Email already registered")
+
     db.refresh(user)
     return user
 
 
 @router.post("/login", response_model=Token)
-def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    # OAuth2 form field is called "username"; we put the email in it
-    user = db.scalar(select(User).where(User.email == form.username.lower()))
+def login(
+    form: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
+):
+    user = db.scalar(
+        select(User).where(User.email == form.username.lower())
+    )
 
     if not user or not verify_password(form.password, user.password_hash):
         raise HTTPException(
@@ -50,7 +58,7 @@ def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    token = create_access_token(user.user_id, user.role.value)
+    token = create_access_token(user.id, user.role.value)
     return Token(access_token=token, user=user)
 
 

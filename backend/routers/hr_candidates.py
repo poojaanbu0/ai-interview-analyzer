@@ -1,4 +1,5 @@
 """Feeds the candidate dropdown on the Create Interview page. HR only."""
+
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -17,6 +18,9 @@ def list_candidates(
     hr: User = Depends(require_hr),
 ):
     candidates = db.scalars(
-        select(User).where(User.role == UserRole.candidate).order_by(User.name, User.user_id)
+        select(User)
+        .where(User.role == UserRole.candidate)
+        .order_by(User.name, User.id)
     ).all()
-    return [CandidateInfo.from_user(c) for c in candidates]
+
+    return [CandidateInfo.from_user(candidate) for candidate in candidates]

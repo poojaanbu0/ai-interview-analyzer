@@ -28,16 +28,27 @@ def get_current_user(
     return user
 
 
+
+
 def require_role(*allowed: UserRole):
-    """Dependency factory: only users with one of these roles get through.
-    The role is read from the database, not trusted from the token."""
+    """Allow access only to users with an explicitly permitted role."""
+
+    allowed_values = {role.value for role in allowed}
+
     def checker(user: User = Depends(get_current_user)) -> User:
-        if user.role not in allowed:
+        user_role = getattr(user.role, "value", user.role)
+
+        if user_role not in allowed_values:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You do not have permission to access this resource",
+                detail=(
+                    f"Access denied. Required role: {sorted(allowed_values)}. "
+                    f"Current role: {user_role}"
+                ),
             )
+
         return user
+
     return checker
 
 

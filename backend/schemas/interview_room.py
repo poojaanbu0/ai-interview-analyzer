@@ -1,21 +1,27 @@
+
 from typing import Optional
 
 from pydantic import BaseModel
 
-from ..models.interview_session import SessionStatus
+
+class InterviewResponseOut(BaseModel):
+    question_number: int
+    question: str
+    answer: str
 
 
 class InterviewStateOut(BaseModel):
-    session_id: int
-    status: SessionStatus
+    interview_id: int
     total_questions: int
     answered: int
-    current_question: Optional[str] = None  # None once the interview is finished
+    current_question: Optional[str] = None
     finished: bool
+    responses: list[InterviewResponseOut] = []
 
 
 class AnswerResultOut(BaseModel):
-    """All the candidate gets back. Transcript, metrics and analysis stay HR-only."""
+    """Candidate receives only progress and the next question."""
+
     answered: int
     total_questions: int
     finished: bool

@@ -156,3 +156,119 @@ section.card h2 { margin: 0 0 0.5rem; font-size: 1.05rem; }
 .kv dt { font-size: 0.8rem; color: var(--muted); }
 .kv dd { margin: 0 0 0.6rem; }
 :disabled.btn { cursor: not-allowed; }
+
+
+.interview-metrics {
+  margin: 20px 0;
+}
+
+.metric-bar {
+  margin: 18px 0;
+}
+
+.metric-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.metric-bar-header strong {
+  font-size: 14px;
+}
+
+.metric-track {
+  width: 100%;
+  height: 12px;
+  background: var(--border-color, #e5e7eb);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.metric-fill {
+  height: 100%;
+  background: var(--primary-color, #4f46e5);
+  border-radius: 20px;
+  transition: width 0.5s ease;
+}
+
+.metric-bar small {
+  display: block;
+  margin-top: 5px;
+}
+
+
+
+.interview-responses {
+  margin: 24px 0;
+}
+
+.response-card {
+  padding: 16px;
+  margin: 14px 0;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 10px;
+}
+
+.response-number {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-color, #4f46e5);
+  margin-bottom: 8px;
+}
+
+.response-card h4 {
+  margin: 0 0 14px;
+}
+
+.response-label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.response-answer {
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.candidate-response-history {
+  margin-top: 30px;
+  text-align: left;
+}
+
+.candidate-response-history h3 {
+  margin-bottom: 16px;
+}
+
+.candidate-response-card {
+  padding: 16px;
+  margin-bottom: 14px;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 10px;
+}
+
+.candidate-response-number {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-color, #4f46e5);
+  margin-bottom: 8px;
+}
+
+.candidate-response-card h4 {
+  margin: 0 0 14px;
+}
+
+.candidate-answer-label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.candidate-answer-text {
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

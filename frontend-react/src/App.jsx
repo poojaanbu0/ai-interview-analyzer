@@ -43,7 +43,7 @@ export default function App() {
       <Route element={<RequireRole role="candidate" />}>
         <Route element={<Layout />}>
           <Route path="/candidate" element={<MyInterviews />} />
-          <Route path="/candidate/interview/:applicationId" element={<InterviewRoom />} />
+          <Route path="/candidate/interview/:interviewId" element={<InterviewRoom />} />
         </Route>
       </Route>
 
