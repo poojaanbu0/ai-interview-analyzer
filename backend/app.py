@@ -60,3 +60,8 @@ app.include_router(hr_interviews.router)
 @app.get("/")
 def root():
     return {"message": "Kyra Nova backend running"}
+
+
+@app.get("/health-status")
+def health_status():
+    return {"message": "i am working good", "status": "success"}
