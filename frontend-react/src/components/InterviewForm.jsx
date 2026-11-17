@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { candidateLabel, fromInputValue, toInputValue } from "../utils.js";
