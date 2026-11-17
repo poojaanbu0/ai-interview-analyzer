@@ -71,6 +71,7 @@ function InterviewMetrics({ metrics }) {
 }
 
 
+
 function InterviewResponses({ responses = [] }) {
   return (
     <section className="interview-responses">
@@ -79,28 +80,54 @@ function InterviewResponses({ responses = [] }) {
       {responses.length === 0 ? (
         <p className="muted">No interview responses found.</p>
       ) : (
-        responses.map((item) => (
-          <article
-            className="response-card"
-            key={item.question_number}
-          >
-            <p className="response-number">
-              Question {item.question_number}
-            </p>
+        responses.map((item) => {
+          const speechMetrics = item.speech_metrics || {};
 
-            <h4>{item.question}</h4>
+          return (
+            <article
+              className="response-card"
+              key={item.question_number}
+            >
+              <p className="response-number">
+                Question {item.question_number}
+              </p>
 
-            <p className="response-label">Candidate's Answer</p>
+              <h4>{item.question}</h4>
 
-            <p className="response-answer">
-              {item.answer || "No answer recorded."}
-            </p>
-          </article>
-        ))
+              <p className="response-label">Candidate's Answer</p>
+
+              <p className="response-answer">
+                {item.answer || "No answer recorded."}
+              </p>
+
+              <div className="response-metrics">
+                <p className="response-label">Speech Metrics</p>
+
+                <div className="interview-metrics">
+                  <MetricBar
+                    label="Speech Rate"
+                    value={speechMetrics.speech_rate ?? 0}
+                    max={200}
+                    suffix=" WPM"
+                    description="Words spoken per minute"
+                  />
+
+                  <MetricBar
+                    label="Filler Words"
+                    value={speechMetrics.filler_words ?? 0}
+                    max={10}
+                    description="Filler words detected in this answer"
+                  />
+                </div>
+              </div>
+            </article>
+          );
+        })
       )}
     </section>
   );
 }
+
 
 function InterviewReport({ report }) {
   const summary = report.report_data?.summary || {};

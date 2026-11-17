@@ -213,13 +213,14 @@ def get_interview_report(
     ).all()
 
     responses = [
-        {
-            "question_number": conversation.sequence_number,
-            "question": conversation.question,
-            "answer": conversation.transcript or "",
-        }
-        for conversation in conversations
-    ]
+    {
+        "question_number": conversation.sequence_number,
+        "question": conversation.question,
+        "answer": conversation.transcript or "",
+        "speech_metrics": conversation.speech_metrics or {},
+    }
+    for conversation in conversations
+]
 
     return {
         "interview_id": interview.id,
