@@ -8,9 +8,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY") or os.getenv("JWT_SECRET_KEY")
 if not SECRET_KEY:
-    raise RuntimeError("SECRET_KEY is missing in .env")
+    raise RuntimeError("SECRET_KEY or JWT_SECRET_KEY is missing from the environment.")
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
