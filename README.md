@@ -104,6 +104,11 @@ From the project root directory, activate the virtual environment and execute:
 uvicorn backend.main:app --reload
 ```
 
+For Vercel, set the backend project's Root Directory to the repository root and
+leave the Start Command unset. The root `main.py` imports the app as the
+`backend` package, and the root `requirements.txt` includes the backend
+dependencies.
+
 The backend will run at:
 
 ```text
