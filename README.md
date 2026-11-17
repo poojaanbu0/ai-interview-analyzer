@@ -57,6 +57,12 @@ Install the required packages:
 pip install -r backend/requirements.txt
 ```
 
+For offline confidence-model training, install the optional training packages:
+
+```bash
+pip install -r backend/requirements-training.txt
+```
+
 ## 5. Configure Supabase Database
 
 Create a Supabase project, then open **Project Settings → Database** and copy a

@@ -30,7 +30,8 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-      "*"
+        "https://ai-interview-analyzer-qdpy.vercel.app",
+        "*",
     ],
     allow_methods=["*"],
     allow_headers=["*"],
