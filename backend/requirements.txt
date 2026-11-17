@@ -114,7 +114,6 @@ sortedcontainers==2.4.0
 soundfile==0.14.0
 soxr==1.1.0
 SQLAlchemy>=2.0.14,<2.1.0
-sqlmodel==0.0.42
 starlette==1.7.0
 stevedore==5.9.1
 streamlit==1.64.0
