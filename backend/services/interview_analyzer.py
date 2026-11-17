@@ -12,22 +12,22 @@ from pydantic import BaseModel, ValidationError
 
 load_dotenv()
 
-api_key = os.getenv("NVIDIA_API_KEY")
-
-if not api_key:
-    raise ValueError("NVIDIA_API_KEY not found in .env")
+_client = None
 
 
-# -----------------------------------
-# NVIDIA CLIENT
-# -----------------------------------
-
-client = OpenAI(
-    base_url="https://integrate.api.nvidia.com/v1",
-    api_key=api_key,
-    timeout=90.0,
-    max_retries=2
-)
+def _get_nvidia_client():
+    global _client
+    if _client is None:
+        api_key = os.getenv("NVIDIA_API_KEY")
+        if not api_key:
+            raise ValueError("NVIDIA_API_KEY not found in environment variables")
+        _client = OpenAI(
+            base_url="https://integrate.api.nvidia.com/v1",
+            api_key=api_key,
+            timeout=90.0,
+            max_retries=2,
+        )
+    return _client
 
 # -----------------------------------
 # OUTPUT SCHEMA
@@ -109,6 +109,7 @@ Rules:
     print("Speech rate:", speech_rate)
     print("Filler words:", filler_words)
 
+    client = _get_nvidia_client()
     response = client.chat.completions.create(
         model="nvidia/nemotron-3.5-lightning-30b-a3b",
 

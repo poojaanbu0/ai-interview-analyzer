@@ -12,15 +12,20 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-api_key = os.getenv("NVIDIA_API_KEY")
+_client = None
 
-if not api_key:
-    raise RuntimeError("NVIDIA_API_KEY is missing from the environment.")
 
-client = OpenAI(
-    base_url="https://integrate.api.nvidia.com/v1",
-    api_key=api_key,
-)
+def _get_nvidia_client():
+    global _client
+    if _client is None:
+        api_key = os.getenv("NVIDIA_API_KEY")
+        if not api_key:
+            raise RuntimeError("NVIDIA_API_KEY is missing from environment variables")
+        _client = OpenAI(
+            base_url="https://integrate.api.nvidia.com/v1",
+            api_key=api_key,
+        )
+    return _client
 
 
 class FinalInterviewSummary(BaseModel):
@@ -46,6 +51,7 @@ Escape any double quotes inside string values.
 Do not include Markdown or additional text.
 """
 
+    client = _get_nvidia_client()
     response = client.chat.completions.create(
         model="nvidia/nemotron-3.5-lightning-30b-a3b",
 

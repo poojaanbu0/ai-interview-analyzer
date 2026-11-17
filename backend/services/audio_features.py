@@ -1,5 +1,3 @@
-import librosa
-import numpy as np
 import tempfile
 import os
 
@@ -7,6 +5,20 @@ import os
 def extract_audio_features(
     audio_bytes: bytes
 ):
+    try:
+        import librosa
+        import numpy as np
+    except ImportError:
+        # librosa is not available in lightweight deployments (e.g. Vercel).
+        # Return empty/default features so the rest of the pipeline still works.
+        return {
+            "mfcc": [0.0] * 13,
+            "rms_energy": 0.0,
+            "zero_crossing_rate": 0.0,
+            "spectral_centroid": 0.0,
+            "pitch_mean": 0.0,
+            "pitch_variation": 0.0,
+        }
 
     with tempfile.NamedTemporaryFile(
         delete=False,

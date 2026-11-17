@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 
 BACKEND_DIR = Path(__file__).resolve().parent
+# Load .env files for local development; on Vercel env vars are set via the dashboard.
 load_dotenv(BACKEND_DIR.parent / ".env")
 load_dotenv(BACKEND_DIR / ".env", override=True)
 

@@ -14,5 +14,6 @@ email-validator==2.3.0
 groq==1.7.0
 openai==3.24.0
 
-librosa==1.0.0
-numpy==2.5.3
+# librosa and numpy are optional — only needed for local audio feature
+# extraction.  Vercel serverless has a 250 MB limit and cannot fit them.
+# The code gracefully falls back to default values when they are absent.
