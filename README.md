@@ -54,7 +54,7 @@ python -m pip install --upgrade pip
 Install the required packages:
 
 ```bash
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 ```
 
 ## 5. Configure Supabase Database
@@ -128,9 +128,12 @@ pip list
 pip install package-name
 ```
 
-**Update requirements.txt:**
+Then add the package (with an appropriate version constraint) to
+`backend/requirements.txt`.
+
+**Avoid replacing the deployment requirements with the entire local environment:**
 ```bash
-pip freeze > requirements.txt
+pip freeze
 ```
 
 **Deactivate virtual environment:**
