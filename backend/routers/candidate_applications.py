@@ -8,12 +8,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..database import get_db
-from ..dependencies import require_candidate
-from ..models.interview import Interview, InterviewStatus
-from ..models.user import User
-from ..schemas.application import MyInterviewOut, AttendInterviewOut
-from ..utils import utcnow
+from backend.database import get_db
+from backend.dependencies import require_candidate
+from backend.models.interview import Interview, InterviewStatus
+from backend.models.user import User
+from backend.schemas.application import MyInterviewOut, AttendInterviewOut
+from backend.utils import utcnow
 
 router = APIRouter(
     prefix="/interviews",

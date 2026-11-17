@@ -20,19 +20,19 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from ..database import get_db
-from ..dependencies import require_candidate
-from ..models.conversation import Conversation
-from ..models.interview import Interview, InterviewStatus
-from ..models.user import User
-from ..schemas.interview_room import (
+from backend.database import get_db
+from backend.dependencies import require_candidate
+from backend.models.conversation import Conversation
+from backend.models.interview import Interview, InterviewStatus
+from backend.models.user import User
+from backend.schemas.interview_room import (
     AnswerResultOut,
     InterviewResponseOut,
     InterviewStateOut,
 )
-from ..services.interview_pipeline import NoSpeechError, process_answer
-from ..services.report_service import generate_report
-from .candidate_applications import get_own_interview
+from backend.services.interview_pipeline import NoSpeechError, process_answer
+from backend.services.report_service import generate_report
+from backend.routers.candidate_applications import get_own_interview
 
 logger = logging.getLogger(__name__)
 

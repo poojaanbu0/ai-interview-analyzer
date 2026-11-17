@@ -86,14 +86,14 @@ import time
 from fastapi import APIRouter, UploadFile, File, Form
 from pydantic import BaseModel
 
-from ..services.transcription import transcribe_audio
-from ..services.audio_features import extract_audio_features
-from ..services.fluency import (
+from backend.services.transcription import transcribe_audio
+from backend.services.audio_features import extract_audio_features
+from backend.services.fluency import (
     calculate_speech_rate,
     count_filler_words,
 )
-from ..services.interview_analyzer import analyze_interview
-from ..services.interview_summary import generate_interview_summary
+from backend.services.interview_analyzer import analyze_interview
+from backend.services.interview_summary import generate_interview_summary
 
 from pathlib import Path
 

@@ -5,11 +5,11 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from ..database import get_db
-from ..dependencies import get_current_user
-from ..models.user import User, UserRole
-from ..schemas.user import Token, UserCreate, UserOut
-from ..security import create_access_token, hash_password, verify_password
+from backend.database import get_db
+from backend.dependencies import get_current_user
+from backend.models.user import User, UserRole
+from backend.schemas.user import Token, UserCreate, UserOut
+from backend.security import create_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

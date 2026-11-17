@@ -7,10 +7,10 @@ from getpass import getpass
 
 from sqlalchemy import select
 
-from . import models  # noqa: F401  (registers every table)
-from .database import SessionLocal
-from .models.user import User, UserRole
-from .security import hash_password
+from backend import models  # noqa: F401  (registers every table)
+from backend.database import SessionLocal
+from backend.models.user import User, UserRole
+from backend.security import hash_password
 
 
 def main() -> None:

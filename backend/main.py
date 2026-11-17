@@ -4,15 +4,15 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import models  # noqa: F401 - register SQLAlchemy models
-from .routers import (
+from backend import models  # noqa: F401 - register SQLAlchemy models
+from backend.routers import (
     auth,
     hr_interviews,
     hr_candidates,
     candidate_applications,
     interview_room,
 )
-from .routers.interview import router as interview_router
+from backend.routers.interview import router as interview_router
 
 
 @asynccontextmanager

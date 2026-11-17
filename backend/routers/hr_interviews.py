@@ -5,12 +5,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from ..database import get_db
-from ..dependencies import require_hr
-from ..models.interview import Interview, InterviewStatus
-from ..models.user import User, UserRole
-from ..models.conversation import Conversation
-from ..schemas.interview import (
+from backend.database import get_db
+from backend.dependencies import require_hr
+from backend.models.interview import Interview, InterviewStatus
+from backend.models.user import User, UserRole
+from backend.models.conversation import Conversation
+from backend.schemas.interview import (
     CandidateInfo,
     InterviewCreate,
     InterviewOut,

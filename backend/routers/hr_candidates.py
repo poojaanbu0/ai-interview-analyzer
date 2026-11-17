@@ -4,10 +4,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..database import get_db
-from ..dependencies import require_hr
-from ..models.user import User, UserRole
-from ..schemas.interview import CandidateInfo
+from backend.database import get_db
+from backend.dependencies import require_hr
+from backend.models.user import User, UserRole
+from backend.schemas.interview import CandidateInfo
 
 router = APIRouter(prefix="/hr/candidates", tags=["HR: candidates"])
 

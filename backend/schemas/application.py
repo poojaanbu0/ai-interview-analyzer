@@ -4,7 +4,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, field_serializer
 
-from ..utils import utc_iso
+from backend.utils import utc_iso
 
 
 class MyInterviewOut(BaseModel):

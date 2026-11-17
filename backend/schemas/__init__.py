@@ -1,19 +1,19 @@
 
-from .user import UserCreate, UserOut, Token
+from backend.schemas.user import UserCreate, UserOut, Token
 
-from .interview import (
+from backend.schemas.interview import (
     CandidateInfo,
     InterviewCreate,
     InterviewOut,
     InterviewUpdate,
 )
 
-from .application import (
+from backend.schemas.application import (
     MyInterviewOut,
     AttendInterviewOut,
 )
 
-from .interview_room import (
+from backend.schemas.interview_room import (
     AnswerResultOut,
     InterviewStateOut,
 )

@@ -2,9 +2,9 @@
 Whisper transcription, fluency metrics, then the Nemotron answer analysis."""
 import json
 
-from .fluency import calculate_speech_rate, count_filler_words
-from .interview_analyzer import analyze_interview
-from .transcription import transcribe_audio
+from backend.services.fluency import calculate_speech_rate, count_filler_words
+from backend.services.interview_analyzer import analyze_interview
+from backend.services.transcription import transcribe_audio
 
 MIN_WORDS = 2  # fewer words than this = we did not really hear an answer
 

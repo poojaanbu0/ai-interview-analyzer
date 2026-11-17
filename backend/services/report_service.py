@@ -5,10 +5,10 @@ import logging
 
 from sqlalchemy import select
 
-from ..database import SessionLocal
-from ..models.conversation import Conversation
-from ..models.interview_report import InterviewReport
-from .interview_summary import generate_interview_summary
+from backend.database import SessionLocal
+from backend.models.conversation import Conversation
+from backend.models.interview_report import InterviewReport
+from backend.services.interview_summary import generate_interview_summary
 
 logger = logging.getLogger(__name__)
 

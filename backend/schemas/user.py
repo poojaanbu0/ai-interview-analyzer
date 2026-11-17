@@ -9,7 +9,7 @@ from pydantic import (
     field_validator,
 )
 
-from ..models.user import UserRole
+from backend.models.user import UserRole
 
 
 class UserCreate(BaseModel):

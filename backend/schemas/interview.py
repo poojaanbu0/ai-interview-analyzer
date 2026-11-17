@@ -11,9 +11,9 @@ from pydantic import (
     model_validator,
 )
 
-from ..models.interview import InterviewStatus
-from ..models.user import User
-from ..utils import candidate_code, to_utc_naive, utc_iso, utcnow
+from backend.models.interview import InterviewStatus
+from backend.models.user import User
+from backend.utils import candidate_code, to_utc_naive, utc_iso, utcnow
 
 
 def _not_in_the_past(value: datetime) -> datetime:
