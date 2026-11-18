@@ -7,7 +7,6 @@ import { useFetch } from "../hooks.js";
 import {
   candidateLabel,
   formatDateTime,
-  hasStarted,
   hrStatus,
 } from "../utils.js";
 
@@ -330,23 +329,18 @@ export default function HRDashboard() {
                 </button>
               )}
 
-              <button
-                className="btn btn-secondary"
-                disabled={
-                  busyId === interview.interview_id ||
-                  hasStarted(interview)
-                }
-                title={
-                  hasStarted(interview)
-                    ? "The candidate has already started"
-                    : ""
-                }
-                onClick={() => toggleCancel(interview)}
-              >
-                {interview.status === "open"
-                  ? "Cancel interview"
-                  : "Reopen interview"}
-              </button>
+                            {(interview.status === "open" ||
+                interview.status === "closed") && (
+                <button
+                  className="btn btn-secondary"
+                  disabled={busyId === interview.interview_id}
+                  onClick={() => toggleCancel(interview)}
+                >
+                  {interview.status === "open"
+                    ? "Cancel interview"
+                    : "Reopen interview"}
+                </button>
+              )}
             </div>
 
             {reportId === interview.interview_id && (
