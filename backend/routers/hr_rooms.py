@@ -238,7 +238,7 @@ async def assign_candidate(
     from backend.services.supabase_storage import upload_resume
 
     file_bytes = await resume.read()
-    resume_url = upload_resume(file_bytes, filename, candidate_id, room_id)
+    resume_url = upload_resume(file_bytes, filename, candidate_id, candidate.name, room_id)
 
     # Extract text and generate summary
     from backend.services.resume_processor import extract_text, generate_candidate_summary

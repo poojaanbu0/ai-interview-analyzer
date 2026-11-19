@@ -6,7 +6,7 @@ with newer Supabase secret keys (sb_secret_...).
 """
 
 import os
-import uuid
+import re
 
 import httpx
 from dotenv import load_dotenv
@@ -24,17 +24,33 @@ def _get_config() -> tuple[str, str]:
     return url, key
 
 
-def upload_resume(file_bytes: bytes, filename: str, candidate_id: int, room_id: int) -> str:
-    """Upload a resume to the 'resumes' bucket and return the storage path."""
+def _sanitize(name: str) -> str:
+    """Make a name safe for use in a file path."""
+    return re.sub(r"[^a-zA-Z0-9_-]", "_", name.strip()).lower()
+
+
+def upload_resume(
+    file_bytes: bytes,
+    filename: str,
+    candidate_id: int,
+    candidate_name: str,
+    room_id: int,
+) -> str:
+    """Upload a resume to the 'resumes' bucket.
+
+    Path: resume/{room_id}/{candidate_id}/candidate_{name}.ext
+    """
     url, key = _get_config()
-    unique_name = f"{uuid.uuid4().hex}_{filename}"
-    storage_path = f"{room_id}/{candidate_id}/{unique_name}"
+
+    # Get file extension
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else "pdf"
+    safe_name = _sanitize(candidate_name)
+    storage_path = f"resume/{room_id}/{candidate_id}/candidate_{safe_name}.{ext}"
 
     # Detect content type
-    lower = filename.lower()
-    if lower.endswith(".pdf"):
+    if ext == "pdf":
         content_type = "application/pdf"
-    elif lower.endswith(".docx"):
+    elif ext == "docx":
         content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     else:
         content_type = "application/octet-stream"
