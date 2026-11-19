@@ -12,7 +12,7 @@ function readStoredUser() {
 }
 
 // which dashboard each role lands on
-export const homeFor = (role) => (role === "hr" ? "/hr" : "/candidate");
+export const homeFor = (role) => (role === "hr" ? "/hr/rooms" : "/candidate");
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(readStoredUser);

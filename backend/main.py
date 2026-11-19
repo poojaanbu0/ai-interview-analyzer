@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend import models  # noqa: F401 - register SQLAlchemy models
 from backend.routers import (
     auth,
+    hr_rooms,
     hr_interviews,
     hr_candidates,
     candidate_applications,
@@ -50,6 +51,7 @@ app.include_router(interview_router)
 app.include_router(auth.router)
 app.include_router(candidate_applications.router)
 app.include_router(interview_room.router)
+app.include_router(hr_rooms.router)
 app.include_router(hr_candidates.router)
 app.include_router(hr_interviews.router)
 

@@ -60,6 +60,7 @@ def generate_report(interview_id: int) -> None:
             )
 
         summary = generate_interview_summary(history)
+        summary_dict = summary.model_dump()
 
         # Calculate overall interview metrics.
         rates = [
@@ -69,7 +70,7 @@ def generate_report(interview_id: int) -> None:
         ]
 
         report_data = {
-            "summary": summary.model_dump(),
+            "summary": summary_dict,
             "metrics": {
                 "questions_answered": len(history),
                 "average_speech_rate": (
@@ -79,6 +80,12 @@ def generate_report(interview_id: int) -> None:
                 "total_filler_words": sum(
                     item["filler_words"] for item in history
                 ),
+                "technical_strength": summary_dict.get("technical_strength", 50),
+                "communication": summary_dict.get("communication", 50),
+                "confidence": summary_dict.get("confidence", 50),
+                "problem_solving": summary_dict.get("problem_solving", 50),
+                "relevance": summary_dict.get("relevance", 50),
+                "clarity": summary_dict.get("clarity", 50),
             },
         }
 

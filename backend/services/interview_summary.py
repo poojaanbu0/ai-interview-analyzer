@@ -34,6 +34,12 @@ class FinalInterviewSummary(BaseModel):
     improvement_areas: list[str]
     technical_topics: list[str]
     communication_observations: list[str]
+    technical_strength: int = 50
+    communication: int = 50
+    confidence: int = 50
+    problem_solving: int = 50
+    relevance: int = 50
+    clarity: int = 50
 
 
 def _generate_response(prompt: str, retry: bool = False) -> str:
@@ -164,7 +170,13 @@ Return ONLY a valid JSON object with exactly this structure:
     "key_strengths": ["string"],
     "improvement_areas": ["string"],
     "technical_topics": ["string"],
-    "communication_observations": ["string"]
+    "communication_observations": ["string"],
+    "technical_strength": 0-100,
+    "communication": 0-100,
+    "confidence": 0-100,
+    "problem_solving": 0-100,
+    "relevance": 0-100,
+    "clarity": 0-100
 }}
 
 Rules:
@@ -183,6 +195,13 @@ Rules:
 - Keep the summary concise.
 - All values must follow the specified JSON structure.
 - Do not include Markdown or code fences.
+- Score each metric from 0 to 100 based on evidence in the interview:
+  - "technical_strength": depth of technical knowledge demonstrated.
+  - "communication": clarity, articulation, and effectiveness of communication.
+  - "confidence": how confidently the candidate presented their answers.
+  - "problem_solving": ability to reason through problems and propose solutions.
+  - "relevance": how relevant the answers were to the questions asked.
+  - "clarity": how clear and structured the responses were.
 """
 
     # First attempt

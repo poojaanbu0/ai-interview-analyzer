@@ -4,6 +4,10 @@ import Layout from "./components/Layout.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import HRDashboard from "./pages/HRDashboard.jsx";
+import HRRooms from "./pages/HRRooms.jsx";
+import CreateRoom from "./pages/CreateRoom.jsx";
+import RoomDetail from "./pages/RoomDetail.jsx";
+import CandidateResult from "./pages/CandidateResult.jsx";
 import CreateInterview from "./pages/CreateInterview.jsx";
 import EditInterview from "./pages/EditInterview.jsx";
 import InterviewDetail from "./pages/InterviewDetail.jsx";
@@ -33,7 +37,15 @@ export default function App() {
 
       <Route element={<RequireRole role="hr" />}>
         <Route element={<Layout />}>
-          <Route path="/hr" element={<HRDashboard />} />
+          {/* Room-based flow (new) */}
+          <Route path="/hr" element={<Navigate to="/hr/rooms" replace />} />
+          <Route path="/hr/rooms" element={<HRRooms />} />
+          <Route path="/hr/rooms/new" element={<CreateRoom />} />
+          <Route path="/hr/rooms/:roomId" element={<RoomDetail />} />
+          <Route path="/hr/rooms/:roomId/candidates/:interviewId" element={<CandidateResult />} />
+
+          {/* Legacy interview routes (backward compat) */}
+          <Route path="/hr/interviews" element={<HRDashboard />} />
           <Route path="/hr/interviews/new" element={<CreateInterview />} />
           <Route path="/hr/interviews/:id" element={<InterviewDetail />} />
           <Route path="/hr/interviews/:id/edit" element={<EditInterview />} />

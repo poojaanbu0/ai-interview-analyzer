@@ -1,7 +1,10 @@
 
 """HR-only routes for creating, viewing, updating and cancelling interviews."""
 
+from io import BytesIO
+
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
@@ -228,6 +231,47 @@ def get_interview_report(
         "generated_at": interview.report.generated_at,
         "responses": responses,
     }
+
+
+@router.get("/{interview_id}/report/pdf")
+def download_report_pdf(
+    interview_id: int,
+    db: Session = Depends(get_db),
+    hr: User = Depends(require_hr),
+):
+    """Download the interview report as a PDF."""
+
+    interview = get_owned_interview(db, interview_id, hr)
+
+    if interview.status != InterviewStatus.completed:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "The interview has not been completed yet.",
+        )
+
+    if interview.report is None:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            "The interview report has not been generated yet.",
+        )
+
+    conversations = db.scalars(
+        select(Conversation)
+        .where(Conversation.interview_id == interview.id)
+        .order_by(Conversation.sequence_number)
+    ).all()
+
+    from backend.services.pdf_report import generate_pdf_report
+
+    pdf_bytes = generate_pdf_report(interview, conversations)
+
+    return StreamingResponse(
+        BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="report_{interview_id}.pdf"'
+        },
+    )
 
 
 @router.patch(

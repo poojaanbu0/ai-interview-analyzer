@@ -87,4 +87,36 @@ export const api = {
       body: form,
     });
   },
+
+  // ---- HR: rooms ----
+  listRooms: () => request("/rooms"),
+  getRoom: (id) => request(`/rooms/${id}`),
+  createRoom: (data) => request("/rooms", { method: "POST", json: data }),
+
+  assignCandidate: (roomId, formData) =>
+    request(`/rooms/${roomId}/candidates`, {
+      method: "POST",
+      body: formData,
+    }),
+
+  getRoomCandidates: (roomId, params = {}) => {
+    const query = new URLSearchParams();
+    if (params.status) query.set("status", params.status);
+    if (params.search) query.set("search", params.search);
+    if (params.sort_by) query.set("sort_by", params.sort_by);
+    const qs = query.toString();
+    return request(`/rooms/${roomId}/candidates${qs ? `?${qs}` : ""}`);
+  },
+
+  downloadReportPdf: async (interviewId) => {
+    const headers = {};
+    const token = getToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
+    const res = await fetch(
+      `${API_URL}/interviews/${interviewId}/report/pdf`,
+      { headers }
+    );
+    if (!res.ok) throw new ApiError("Failed to download report", res.status);
+    return res.blob();
+  },
 };

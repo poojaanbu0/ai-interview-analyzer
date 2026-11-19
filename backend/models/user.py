@@ -6,6 +6,7 @@ from backend.database import Base
 from typing import Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from .interview import Interview
+    from .interview_room import InterviewRoom
 
 
 class UserRole(str, enum.Enum):
@@ -29,4 +30,7 @@ class User(Base):
     )
     candidate_interviews: Mapped[list["Interview"]] = relationship(
         back_populates="candidate", foreign_keys="Interview.candidate_id"
+    )
+    rooms: Mapped[list["InterviewRoom"]] = relationship(
+        back_populates="hr", foreign_keys="InterviewRoom.hr_id"
     )

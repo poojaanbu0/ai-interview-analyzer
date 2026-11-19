@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from .user import User
     from .conversation import Conversation
     from .interview_report import InterviewReport
+    from .interview_room import InterviewRoom
 
 
 class InterviewStatus(str, enum.Enum):
@@ -32,16 +33,23 @@ class Interview(Base):
     location: Mapped[Optional[str]] = mapped_column(String(150))
     employment_type: Mapped[Optional[str]] = mapped_column(String(50))
     experience_level: Mapped[Optional[str]] = mapped_column(String(50))
+    room_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("interview_rooms.id", ondelete="CASCADE"), index=True
+    )
     candidate_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL"), index=True
     )
     candidate_summary: Mapped[Optional[str]] = mapped_column(Text)
+    resume_url: Mapped[Optional[str]] = mapped_column(Text)
     scheduled_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
     status: Mapped[str] = mapped_column(
         String(20), default=InterviewStatus.open.value, server_default=InterviewStatus.open.value
     )
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
+    room: Mapped[Optional["InterviewRoom"]] = relationship(
+        back_populates="interviews", foreign_keys=[room_id]
+    )
     hr: Mapped["User"] = relationship(back_populates="interviews", foreign_keys=[hr_id])
     candidate: Mapped[Optional["User"]] = relationship(
         back_populates="candidate_interviews", foreign_keys=[candidate_id]

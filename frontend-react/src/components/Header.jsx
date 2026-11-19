@@ -2,8 +2,8 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext.jsx";
 
 const HR_LINKS = [
-  { to: "/hr", label: "My interviews", end: true },
-  { to: "/hr/interviews/new", label: "Create interview" },
+  { to: "/hr/rooms", label: "Interview Rooms", end: false },
+  { to: "/hr/interviews", label: "Legacy Interviews", end: true },
 ];
 const CANDIDATE_LINKS = [{ to: "/candidate", label: "My interviews", end: true }];
 
@@ -20,7 +20,7 @@ export default function Header() {
   return (
     <header className="header">
       <div className="header-left">
-        <strong>Aalam-Interview-Analyzer</strong>
+        <strong>Kyra Nova</strong>
         <nav className="nav">
           {links.map((link) => (
             <NavLink
