@@ -25,11 +25,11 @@ def _get_supabase_client() -> Client:
     return _client
 
 
-def upload_resume(file_bytes: bytes, filename: str, room_id: int) -> str:
+def upload_resume(file_bytes: bytes, filename: str, candidate_id: int, room_id: int) -> str:
     """Upload a resume to the 'resumes' bucket and return the storage path."""
     client = _get_supabase_client()
     unique_name = f"{uuid.uuid4().hex}_{filename}"
-    storage_path = f"{room_id}/{unique_name}"
+    storage_path = f"{room_id}/{candidate_id}/{unique_name}"
 
     client.storage.from_("resumes").upload(
         path=storage_path,
