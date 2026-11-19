@@ -64,6 +64,7 @@ def upload_resume(
             "Authorization": f"Bearer {key}",
             "apikey": key,
             "Content-Type": content_type,
+            "x-upsert": "true",
         },
         timeout=30,
     )
