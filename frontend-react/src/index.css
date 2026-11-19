@@ -114,6 +114,8 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary); o
 .header .nav-link { color: var(--color-neutral-300); }
 .header .nav-link:hover { color: #fff; }
 .header .nav-link.active { color: var(--color-teal-300); border-bottom-color: var(--color-teal-400); }
+.header .btn-secondary { color: #fff; }
+.header .btn-secondary:hover:not(:disabled) { color: var(--text); }
 .header-right { display: flex; align-items: center; gap: 0.75rem; }
 .header-right span { color: var(--color-neutral-200); }
 .badge { font-size: 0.75rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 999px; background: var(--color-teal-800); color: var(--color-teal-200); }

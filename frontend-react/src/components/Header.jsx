@@ -20,7 +20,7 @@ export default function Header() {
   return (
     <header className="header">
       <div className="header-left">
-        <strong>Kyra Nova</strong>
+        <strong>Aalam Interview Analyzer</strong>
         <nav className="nav">
           {links.map((link) => (
             <NavLink

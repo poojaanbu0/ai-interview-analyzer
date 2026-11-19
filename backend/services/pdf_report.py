@@ -3,6 +3,7 @@
 
 import io
 from datetime import datetime
+from xml.sax.saxutils import escape
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -118,8 +119,8 @@ def generate_pdf_report(
 
     # Meta info
     story.append(Paragraph(
-        f"<b>Candidate:</b> {candidate_name} &nbsp;&nbsp; "
-        f"<b>Position:</b> {job_title} &nbsp;&nbsp; "
+        f"<b>Candidate:</b> {escape(candidate_name)} &nbsp;&nbsp; "
+        f"<b>Position:</b> {escape(job_title)} &nbsp;&nbsp; "
         f"<b>Date:</b> {datetime.utcnow().strftime('%Y-%m-%d')}",
         styles["BodyText2"],
     ))
@@ -135,7 +136,7 @@ def generate_pdf_report(
     summary = report_data.get("summary", {})
     story.append(Paragraph("Overall Summary", styles["SubHead"]))
     story.append(Paragraph(
-        summary.get("overall_summary", "N/A"), styles["BodyText2"],
+        escape(summary.get("overall_summary", "N/A")), styles["BodyText2"],
     ))
     story.append(Spacer(1, 8))
 
@@ -144,7 +145,7 @@ def generate_pdf_report(
     if strengths:
         story.append(Paragraph("Key Strengths", styles["SubHead"]))
         for s in strengths:
-            story.append(Paragraph(f"&bull; {s}", styles["BodyText2"]))
+            story.append(Paragraph(f"&bull; {escape(s)}", styles["BodyText2"]))
         story.append(Spacer(1, 6))
 
     # --- Improvement areas --------------------------------------------------
@@ -152,7 +153,7 @@ def generate_pdf_report(
     if areas:
         story.append(Paragraph("Areas for Improvement", styles["SubHead"]))
         for a in areas:
-            story.append(Paragraph(f"&bull; {a}", styles["BodyText2"]))
+            story.append(Paragraph(f"&bull; {escape(a)}", styles["BodyText2"]))
         story.append(Spacer(1, 6))
 
     # --- Conversation Q&A ---------------------------------------------------
@@ -162,10 +163,10 @@ def generate_pdf_report(
             q = conv.get("question", "N/A")
             a = conv.get("answer", conv.get("transcript", "N/A"))
             story.append(Paragraph(
-                f"<b>Q{idx}:</b> {q}", styles["BodyText2"],
+                f"<b>Q{idx}:</b> {escape(q)}", styles["BodyText2"],
             ))
             story.append(Paragraph(
-                f"<b>A{idx}:</b> {a}", styles["BodyText2"],
+                f"<b>A{idx}:</b> {escape(a)}", styles["BodyText2"],
             ))
             story.append(Spacer(1, 6))
 

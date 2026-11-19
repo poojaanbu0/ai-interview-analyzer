@@ -263,7 +263,19 @@ def download_report_pdf(
 
     from backend.services.pdf_report import generate_pdf_report
 
-    pdf_bytes = generate_pdf_report(interview, conversations)
+    pdf_conversations = [
+        {
+            "question": conversation.question,
+            "answer": conversation.transcript or "",
+        }
+        for conversation in conversations
+    ]
+    pdf_bytes = generate_pdf_report(
+        candidate_name=interview.candidate.name if interview.candidate else "Candidate",
+        job_title=interview.job_title,
+        report_data=interview.report.report_data,
+        conversations=pdf_conversations,
+    )
 
     return StreamingResponse(
         BytesIO(pdf_bytes),
