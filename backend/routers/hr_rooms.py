@@ -244,7 +244,7 @@ async def assign_candidate(
     from backend.services.resume_processor import extract_text, generate_candidate_summary
 
     text = extract_text(file_bytes, filename)
-    candidate_summary = generate_candidate_summary(text)
+    candidate_summary = generate_candidate_summary(text, room.job_description)
 
     # Parse scheduled_at
     parsed_scheduled = to_utc_naive(datetime.fromisoformat(scheduled_at))
