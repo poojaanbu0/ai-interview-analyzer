@@ -1,6 +1,8 @@
 
 """Resume text extraction and candidate summary generation."""
 
+import io
+import logging
 import os
 
 import fitz  # PyMuPDF
@@ -9,6 +11,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 _client = None
 
@@ -34,12 +38,16 @@ def extract_text(file_bytes: bytes, filename: str) -> str:
         doc = fitz.open(stream=file_bytes, filetype="pdf")
         text = "\n".join(page.get_text() for page in doc)
         doc.close()
+        if not text.strip():
+            raise ValueError("Could not extract any text from the PDF. The file may be image-only.")
         return text
 
-    if ext in ("docx",):
-        import io
+    if ext == "docx":
         document = docx.Document(io.BytesIO(file_bytes))
-        return "\n".join(p.text for p in document.paragraphs)
+        text = "\n".join(p.text for p in document.paragraphs)
+        if not text.strip():
+            raise ValueError("Could not extract any text from the DOCX file.")
+        return text
 
     raise ValueError(f"Unsupported file type: .{ext}")
 
@@ -47,6 +55,11 @@ def extract_text(file_bytes: bytes, filename: str) -> str:
 def generate_candidate_summary(resume_text: str, job_description: str) -> str:
     """Generate a concise summary of the candidate relative to the JD."""
     client = _get_nvidia_client()
+
+    # Truncate very long resumes to avoid token limits
+    max_chars = 6000
+    if len(resume_text) > max_chars:
+        resume_text = resume_text[:max_chars] + "\n... (truncated)"
 
     prompt = f"""You are an HR assistant. Given a candidate's resume and a job description,
 provide a concise summary of the candidate's qualifications relative to the job.
@@ -58,16 +71,37 @@ Job Description:
 Resume:
 {resume_text}
 
-Provide a concise summary (3-5 paragraphs)."""
+Provide a concise summary (3-5 paragraphs). Return only the summary text, no extra formatting."""
 
-    response = client.chat.completions.create(
-        model="nvidia/nemotron-3.5-lightning-30b-a3b",
-        messages=[
-            {"role": "system", "content": "You are a helpful HR assistant."},
-            {"role": "user", "content": prompt},
-        ],
-        temperature=0.3,
-        max_tokens=800,
-    )
+    try:
+        response = client.chat.completions.create(
+            model="nvidia/nemotron-3.5-lightning-30b-a3b",
+            messages=[
+                {"role": "system", "content": "You are a helpful HR assistant that summarizes candidate resumes."},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.3,
+            max_tokens=800,
+            extra_body={
+                "chat_template_kwargs": {
+                    "enable_thinking": False
+                }
+            },
+        )
 
-    return response.choices[0].message.content.strip()
+        content = response.choices[0].message.content
+        if content and content.strip():
+            return content.strip()
+
+        logger.warning("NVIDIA LLM returned empty content for resume summary")
+        return _fallback_summary(resume_text)
+
+    except Exception as e:
+        logger.exception("Failed to generate candidate summary via LLM: %s", e)
+        return _fallback_summary(resume_text)
+
+
+def _fallback_summary(resume_text: str) -> str:
+    """Simple fallback when the LLM fails — return first ~500 chars of resume."""
+    preview = resume_text.strip()[:500]
+    return f"(Auto-extracted from resume)\n\n{preview}..."
