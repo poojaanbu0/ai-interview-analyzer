@@ -43,6 +43,8 @@ export default function EditInterview() {
     );
   }
 
+  const candidate = interview.candidate ?? interview.assignment?.candidate;
+
   return (
     <>
       <div className="page-title">
@@ -50,7 +52,8 @@ export default function EditInterview() {
       </div>
       <InterviewForm
         initial={interview}
-        lockedCandidate={interview.assignment ? candidateLabel(interview.assignment.candidate) : "No candidate"}
+        lockedCandidate={candidate ? candidateLabel(candidate) : "No candidate"}
+        hideCandidate={Boolean(candidate)}
         submitLabel="Save changes"
         busy={busy}
         error={error}

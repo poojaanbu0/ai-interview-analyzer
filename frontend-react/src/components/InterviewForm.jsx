@@ -12,6 +12,7 @@ export default function InterviewForm({
   initial,
   candidates = [],
   lockedCandidate,
+  hideCandidate = false,
   submitLabel,
   busy,
   error,
@@ -80,29 +81,30 @@ export default function InterviewForm({
     <form className="card form-grid" onSubmit={handleSubmit}>
       <h2 className="full">Candidate and schedule</h2>
 
-      {lockedCandidate ? (
-        <label className="full">
-          Candidate
-          <input value={lockedCandidate} disabled />
-        </label>
-      ) : (
-        <label className="full">
-          Select candidate
-          <select
-            value={candidateId}
-            onChange={(e) => setCandidateId(e.target.value)}
-            required
-          >
-            <option value="">-- Select a candidate --</option>
+      {!hideCandidate &&
+        (lockedCandidate ? (
+          <label className="full">
+            Candidate
+            <input value={lockedCandidate} disabled />
+          </label>
+        ) : (
+          <label className="full">
+            Select candidate
+            <select
+              value={candidateId}
+              onChange={(e) => setCandidateId(e.target.value)}
+              required
+            >
+              <option value="">-- Select a candidate --</option>
 
-            {candidates.map((candidate) => (
-              <option key={candidate.user_id} value={candidate.user_id}>
-                {candidateLabel(candidate)}
-              </option>
-            ))}
-          </select>
-        </label>
-      )}
+              {candidates.map((candidate) => (
+                <option key={candidate.user_id} value={candidate.user_id}>
+                  {candidateLabel(candidate)}
+                </option>
+              ))}
+            </select>
+          </label>
+        ))}
 
       <label>
         Interview date and time
