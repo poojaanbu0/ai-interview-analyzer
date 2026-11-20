@@ -42,8 +42,15 @@ export function formatCountdown(total) {
 // What HR sees as the interview's status
 export function hrStatus(interview) {
   if (interview.status === "closed") return "cancelled";
+  if (
+    interview.has_report ||
+    interview.status === "completed" ||
+    interview.assignment?.session_status === "completed"
+  ) {
+    return "completed";
+  }
   const session = interview.assignment?.session_status;
-  if (session === "completed" || session === "abandoned" || session === "in_progress") return session;
+  if (session === "abandoned" || session === "in_progress") return session;
   return "scheduled";
 }
 
