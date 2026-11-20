@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session, selectinload
 from backend.database import get_db
 from backend.dependencies import require_hr
 from backend.models.interview import Interview, InterviewStatus
+from backend.models.interview_room import InterviewRoom
 from backend.models.user import User, UserRole
 from backend.models.conversation import Conversation
 from backend.schemas.interview import (
@@ -100,7 +101,7 @@ def create_interview(
     db: Session = Depends(get_db),
     hr: User = Depends(require_hr),
 ):
-    """Create an interview and assign it directly to a candidate."""
+    """Create a one-candidate room and assign an interview to the candidate."""
 
     candidate = db.scalar(
         select(User).where(
@@ -115,13 +116,22 @@ def create_interview(
             "Candidate not found",
         )
 
+    job_data = data.model_dump(include=JOB_FIELDS)
+    room = InterviewRoom(
+        hr_id=hr.id,
+        **job_data,
+    )
+    db.add(room)
+    db.flush()
+
     interview = Interview(
+        room_id=room.id,
         hr_id=hr.id,
         candidate_id=candidate.id,
         candidate_summary=data.candidate_summary,
         scheduled_at=data.scheduled_at,
         status=InterviewStatus.open,
-        **data.model_dump(include=JOB_FIELDS),
+        **job_data,
     )
 
     db.add(interview)

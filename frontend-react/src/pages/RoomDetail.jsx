@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../api.js";
 import { useFetch } from "../hooks.js";
-import { formatDateTime, label } from "../utils.js";
+import { formatDateTime } from "../utils.js";
 import AssignCandidateModal from "../components/AssignCandidateModal.jsx";
 import ViewToggle from "../components/ViewToggle.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
@@ -54,7 +54,7 @@ export default function RoomDetail() {
   const [sortBy, setSortBy] = useState("date");
 
   const {
-    data: room,
+    data: roomResponse,
     loading,
     error,
     reload,
@@ -63,12 +63,16 @@ export default function RoomDetail() {
     [roomId]
   );
 
-  if (loading && !room) return <p className="muted">Loading room...</p>;
+  const room = roomResponse?.room ?? roomResponse;
+  const roomCandidates =
+    roomResponse?.candidates ?? room?.candidates ?? [];
+
+  if (loading && !roomResponse) return <p className="muted">Loading room...</p>;
   if (error) return <p className="error">{error}</p>;
   if (!room) return null;
 
   // Client-side filter/sort on the candidates list
-  let candidates = room.candidates || [];
+  let candidates = roomCandidates;
 
   if (statusFilter) {
     candidates = candidates.filter((c) => c.status === statusFilter);
@@ -89,7 +93,7 @@ export default function RoomDetail() {
     );
   }
 
-  const completedCount = (room.candidates || []).filter(
+  const completedCount = roomCandidates.filter(
     (c) => c.status === "completed"
   ).length;
 
@@ -98,7 +102,6 @@ export default function RoomDetail() {
       <div className="page-title">
         <div>
           <Link to="/hr/rooms" className="back-link">← Back to Rooms</Link>
-          <h1>{room.job_title}</h1>
         </div>
         <button className="btn" onClick={() => setShowModal(true)}>
           Assign Candidate
@@ -107,36 +110,34 @@ export default function RoomDetail() {
 
       {/* Room info */}
       <section className="card" style={{ marginBottom: "1rem" }}>
+        <h1>{room.job_title}</h1>
         <div className="detail-grid">
-          {room.location && (
-            <div className="kv">
-              <dt>Location</dt>
-              <dd>{room.location}</dd>
-            </div>
-          )}
-          {room.employment_type && (
-            <div className="kv">
-              <dt>Employment Type</dt>
-              <dd>{room.employment_type}</dd>
-            </div>
-          )}
-          {room.experience_level && (
-            <div className="kv">
-              <dt>Experience Level</dt>
-              <dd>{room.experience_level}</dd>
-            </div>
-          )}
+          <div className="kv">
+            <dt>Location</dt>
+            <dd>{room.location || "Not specified"}</dd>
+          </div>
+          <div className="kv">
+            <dt>Employment Type</dt>
+            <dd>{room.employment_type || "Not specified"}</dd>
+          </div>
+          <div className="kv">
+            <dt>Experience Level</dt>
+            <dd>{room.experience_level || "Not specified"}</dd>
+          </div>
         </div>
-        {room.job_description && (
-          <p className="text-block" style={{ fontSize: "0.9rem" }}>
-            {room.job_description}
-          </p>
-        )}
+        <h3>Job description</h3>
+        <p className="text-block" style={{ fontSize: "0.9rem" }}>
+          {room.job_description || "Not provided"}
+        </p>
+        <h3>Requirements</h3>
+        <p className="text-block" style={{ fontSize: "0.9rem" }}>
+          {room.requirements || "Not specified"}
+        </p>
       </section>
 
       <ProgressBar
         completed={completedCount}
-        total={(room.candidates || []).length}
+        total={roomCandidates.length}
       />
 
       {/* Filters */}

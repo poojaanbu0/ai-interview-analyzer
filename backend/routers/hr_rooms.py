@@ -62,12 +62,42 @@ def create_room(
     )
 
 
+def _backfill_unlinked_interviews(db: Session, hr: User) -> None:
+    """Create one-candidate rooms for this HR's existing direct interviews."""
+
+    interviews = db.scalars(
+        select(Interview)
+        .where(
+            Interview.hr_id == hr.id,
+            Interview.room_id.is_(None),
+            Interview.candidate_id.is_not(None),
+        )
+        .with_for_update()
+    ).all()
+
+    for interview in interviews:
+        interview.room = InterviewRoom(
+            hr_id=hr.id,
+            job_title=interview.job_title,
+            job_description=interview.job_description,
+            requirements=interview.requirements,
+            location=interview.location,
+            employment_type=interview.employment_type,
+            experience_level=interview.experience_level,
+        )
+
+    if interviews:
+        db.commit()
+
+
 @router.get("", response_model=list[RoomOut])
 def list_rooms(
     db: Session = Depends(get_db),
     hr: User = Depends(require_hr),
 ):
     """List all rooms for the logged-in HR with candidate counts."""
+    _backfill_unlinked_interviews(db, hr)
+
     rooms = db.scalars(
         select(InterviewRoom)
         .where(InterviewRoom.hr_id == hr.id)
