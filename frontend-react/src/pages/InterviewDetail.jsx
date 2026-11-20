@@ -35,7 +35,17 @@ export default function InterviewDetail() {
   }
   if (!interview) return <p className="muted">Loading...</p>;
 
-  const a = interview.assignment;
+  const assignment = interview.assignment;
+  const candidate = interview.candidate ?? assignment?.candidate;
+  const scheduledAt = interview.scheduled_at ?? assignment?.scheduled_at;
+  const candidateSummary =
+    interview.candidate_summary ?? assignment?.candidate_summary;
+  const sessionStatus =
+    assignment?.session_status ??
+    (["in_progress", "completed", "abandoned"].includes(interview.status)
+      ? interview.status
+      : null);
+  const hasReport = interview.has_report ?? assignment?.has_report;
   const started = hasStarted(interview);
 
   return (
@@ -68,16 +78,16 @@ export default function InterviewDetail() {
       <div className="detail-grid">
         <section className="card">
           <h2>Candidate</h2>
-          {a ? (
+          {candidate ? (
             <dl className="kv">
               <dt>Name</dt>
-              <dd>{a.candidate.name}</dd>
+              <dd>{candidate.name}</dd>
               <dt>ID</dt>
-              <dd>{a.candidate.candidate_code}</dd>
+              <dd>{candidate.candidate_code}</dd>
               <dt>Email</dt>
-              <dd>{a.candidate.email}</dd>
+              <dd>{candidate.email}</dd>
               <dt>Phone</dt>
-              <dd>{a.candidate.phone || "-"}</dd>
+              <dd>{candidate.phone || "-"}</dd>
             </dl>
           ) : (
             <p className="muted">No candidate assigned.</p>
@@ -88,20 +98,20 @@ export default function InterviewDetail() {
           <h2>Schedule and progress</h2>
           <dl className="kv">
             <dt>Scheduled for</dt>
-            <dd>{formatDateTime(a?.scheduled_at)}</dd>
+            <dd>{formatDateTime(scheduledAt)}</dd>
             <dt>Interview</dt>
-            <dd>{a?.session_status ? <StatusBadge value={a.session_status} /> : "Not started"}</dd>
+            <dd>{sessionStatus ? <StatusBadge value={sessionStatus} /> : "Not started"}</dd>
             <dt>Report</dt>
-            <dd>{a?.has_report ? "Ready" : "Not available yet"}</dd>
+            <dd>{hasReport ? "Ready" : "Not available yet"}</dd>
           </dl>
         </section>
       </div>
 
-      {a?.candidate_summary && (
+      {candidateSummary && (
         <section className="card">
           <h2>Candidate summary</h2>
           <p className="muted">Visible to HR only.</p>
-          <p className="text-block">{a.candidate_summary}</p>
+          <p className="text-block">{candidateSummary}</p>
         </section>
       )}
 

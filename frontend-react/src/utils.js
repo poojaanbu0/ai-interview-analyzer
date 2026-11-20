@@ -42,19 +42,26 @@ export function formatCountdown(total) {
 // What HR sees as the interview's status
 export function hrStatus(interview) {
   if (interview.status === "closed") return "cancelled";
+  const session =
+    interview.assignment?.session_status ??
+    (["completed", "abandoned", "in_progress"].includes(interview.status)
+      ? interview.status
+      : null);
   if (
     interview.has_report ||
-    interview.status === "completed" ||
-    interview.assignment?.session_status === "completed"
+    session === "completed"
   ) {
     return "completed";
   }
-  const session = interview.assignment?.session_status;
   if (session === "abandoned" || session === "in_progress") return session;
   return "scheduled";
 }
 
 // HR can edit or cancel only until the candidate has started
-export const hasStarted = (interview) => Boolean(interview.assignment?.session_status);
+export const hasStarted = (interview) =>
+  Boolean(
+    interview.assignment?.session_status ||
+      ["in_progress", "completed", "abandoned"].includes(interview.status),
+  );
 
 export const candidateLabel = (c) => `${c.name} - ${c.candidate_code}`;
